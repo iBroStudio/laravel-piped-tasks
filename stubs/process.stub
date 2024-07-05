@@ -1,0 +1,40 @@
+<?php
+
+namespace DummyNamespace;
+
+use DummyPayloadNamespace\DummyPayloadClass;
+use IBroStudio\PipedTasks\Payload;
+use IBroStudio\PipedTasks\Process;
+
+class DummyClass extends Process
+{
+    protected array $tasks = [
+        //
+    ];
+
+    protected bool $withEvents = false;
+
+    protected bool $withTransaction = false;
+
+    public function onSuccess(): static
+    {
+        $this->onSuccess = function (DummyPayloadClass|Payload $payload) {
+            //
+
+            return $payload;
+        };
+
+        return $this;
+    }
+
+    public function onFailure(): static
+    {
+        $this->onFailure = function (DummyPayloadClass|Payload $payload, $exception) {
+            //
+
+            return $payload;
+        };
+
+        return $this;
+    }
+}

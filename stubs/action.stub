@@ -1,0 +1,19 @@
+<?php
+
+namespace DummyNamespace;
+
+use Spatie\QueueableAction\QueueableAction;
+
+final readonly class DummyClass
+{
+    use QueueableAction;
+
+    public function __construct(
+        //
+    ) {}
+
+    public function execute(): void
+    {
+        //
+    }
+}

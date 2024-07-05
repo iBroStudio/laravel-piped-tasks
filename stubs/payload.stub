@@ -1,0 +1,14 @@
+<?php
+
+namespace DummyNamespace;
+
+use IBroStudio\PipedTasks\Payload;
+use DummyInterfaceNamespace\DummyPayloadInterface;
+
+final class DummyClass implements Payload, DummyPayloadInterface
+{
+  public function __construct(
+      //
+  )
+  {}
+}

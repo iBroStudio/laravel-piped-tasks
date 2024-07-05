@@ -1,0 +1,21 @@
+<?php
+
+namespace DummyNamespace;
+
+use DummyActionNamespace\DummyActionClass;
+use DummyPayloadNamespace\DummyPayloadContract;
+use Closure;
+
+final readonly class DummyClass
+{
+    public function __construct(
+        private DummyActionClass $action
+    ) {}
+
+    public function __invoke(DummyPayloadContract $payload, Closure $next): mixed
+    {
+        $this->action->execute();
+
+        return $next($payload);
+    }
+}
