@@ -3,6 +3,8 @@
 namespace IBroStudio\PipedTasks;
 
 use Closure;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Config;
 use MichaelRubel\EnhancedPipeline\Pipeline;
 
 abstract class Process
@@ -38,7 +40,7 @@ abstract class Process
 
         $pipeline
             ->send($payload)
-            ->through($this->tasks);
+            ->through($this->tasks());
 
         if (! is_null($this->onFailure)) {
             $pipeline->onFailure($this->onFailure);
@@ -77,5 +79,21 @@ abstract class Process
         $this->withTransaction = true;
 
         return $this;
+    }
+
+    protected function tasks(): array
+    {
+        if (Arr::exists(Config::get('piped-tasks.tasks'), static::class)) {
+            $this->tasks = array_merge(
+                $this->tasks,
+                Arr::wrap(Config::get('piped-tasks.tasks.'.static::class.'.append'))
+            );
+            $this->tasks = array_merge(
+                Arr::wrap(Config::get('piped-tasks.tasks.'.static::class.'.prepend')),
+                $this->tasks
+            );
+        }
+
+        return $this->tasks;
     }
 }

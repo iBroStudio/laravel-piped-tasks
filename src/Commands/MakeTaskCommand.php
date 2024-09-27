@@ -4,7 +4,6 @@ namespace IBroStudio\PipedTasks\Commands;
 
 use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
 
 class MakeTaskCommand extends BaseGeneratorCommand
@@ -64,7 +63,7 @@ class MakeTaskCommand extends BaseGeneratorCommand
             '--force' => $this->option('force'),
         ]);
 
-        return Command::SUCCESS;
+        return true;
     }
 
     protected function replaceClass($stub, $name): array|string

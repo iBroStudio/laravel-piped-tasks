@@ -3,12 +3,11 @@
 namespace IBroStudio\PipedTasks\Exceptions;
 
 use Exception;
-use Throwable;
 
 class MissingPayloadException extends Exception
 {
-    public function __construct(string $message = '', int $code = 0, ?Throwable $previous = null)
+    public function __construct()
     {
-        parent::__construct('Incorrect process name. Use "<Action><Domain>Process" format', $code, $previous);
+        parent::__construct('Incorrect process name. Use "<Action><Domain>Process" format');
     }
 }

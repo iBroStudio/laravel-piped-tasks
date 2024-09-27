@@ -16,6 +16,7 @@ class PipedTasksServiceProvider extends PackageServiceProvider
     {
         $package
             ->name('laravel-piped-tasks')
+            ->hasConfigFile()
             ->hasCommands(
                 MakeActionCommand::class,
                 MakePayloadCommand::class,

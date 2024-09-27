@@ -4,7 +4,6 @@ namespace IBroStudio\PipedTasks\Commands;
 
 use IBroStudio\PipedTasks\Exceptions\BadProcessNameException;
 use Illuminate\Support\Str;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
 
 class MakeProcessCommand extends BaseGeneratorCommand
@@ -27,7 +26,7 @@ class MakeProcessCommand extends BaseGeneratorCommand
     public function handle(): bool
     {
         if (! $this->checkName()) {
-            throw new BadProcessNameException();
+            throw new BadProcessNameException;
         }
 
         $this->payloadClass = Str::of($this->getNameInput())
@@ -52,7 +51,7 @@ class MakeProcessCommand extends BaseGeneratorCommand
             '--force' => $this->option('force'),
         ]);
 
-        return Command::SUCCESS;
+        return true;
     }
 
     protected function replaceClass($stub, $name): array|string

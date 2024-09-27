@@ -19,7 +19,7 @@ class MakePayloadCommand extends BaseGeneratorCommand
 
     protected string $payloadInterfaceNamespace;
 
-    public function handle(): void
+    public function handle(): bool
     {
         $this->payloadInterface =
             Str::of($this->getNameInput())
@@ -45,6 +45,7 @@ class MakePayloadCommand extends BaseGeneratorCommand
             '--force' => $this->option('force'),
         ]);
 
+        return true;
     }
 
     protected function replaceClass($stub, $name): array|string

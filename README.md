@@ -326,6 +326,37 @@ $process = (new CreateOrderProcess)
 $process->getOrder();
 ```
 
+## Append / prepend tasks
+
+Via the tasks array in the config file piped-tasks.php, it is possible to add tasks to a process. It allows you to dynamically modify a process using to the Config::set() method:
+
+First, publish the config file:
+```bash
+php artisan vendor:publish --tag=piped-tasks
+```
+Add your process class and append or prepend your(s) task(s) class(es):
+```php
+<?php
+
+declare(strict_types=1);
+
+return [
+
+    'tasks' => [
+
+        Process::class => [
+            'prepend' => [
+                FirstTask::class,
+                SecondTask::class,
+            ],
+            'append' => [
+                LastTask::class,
+            ],
+        ]
+    ],
+
+];
+```
 
 ## Testing
 
