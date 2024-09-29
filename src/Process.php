@@ -111,7 +111,7 @@ abstract class Process
 
     protected function tasks(): array
     {
-        if (Arr::exists(Config::get('piped-tasks.tasks'), static::class)) {
+        if (Arr::exists(Config::get('piped-tasks.tasks', []), static::class)) {
             $this->tasks = array_merge(
                 $this->tasks,
                 Arr::wrap(Config::get('piped-tasks.tasks.'.static::class.'.append'))
