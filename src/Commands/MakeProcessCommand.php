@@ -51,7 +51,7 @@ class MakeProcessCommand extends BaseGeneratorCommand
             '--force' => $this->option('force'),
         ]);
 
-        return true;
+        return false;
     }
 
     protected function replaceClass($stub, $name): array|string

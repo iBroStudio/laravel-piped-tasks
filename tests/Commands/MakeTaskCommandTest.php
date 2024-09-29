@@ -12,7 +12,7 @@ it('can generate a new task', function () {
         '--payload' => 'FakePayload',
         '--force' => true,
     ])
-        ->assertExitCode(Command::SUCCESS);
+        ->assertExitCode(0);
 
     expect(
         app_path('Processes/Tasks/ActionFakeTask.php')
@@ -35,7 +35,7 @@ it('asks for the payload when it is missing', function () {
         '--force' => true,
     ])
         ->expectsQuestion('What payload do you want to use for this task?', 'FakePayload')
-        ->assertExitCode(Command::SUCCESS);
+        ->assertExitCode(0);
 
     expect(
         app_path('Processes/Tasks/ActionFakeTask.php')

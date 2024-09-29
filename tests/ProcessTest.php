@@ -2,9 +2,9 @@
 
 use IBroStudio\PipedTasks\Payload;
 use IBroStudio\PipedTasks\Process;
-use IBroStudio\PipedTasks\Tests\Support\FakePayload;
-use IBroStudio\PipedTasks\Tests\Support\FakeProcess;
-use IBroStudio\PipedTasks\Tests\Support\FakeTask;
+use IBroStudio\PipedTasks\Tests\Support\Processes\FakeProcess;
+use IBroStudio\PipedTasks\Tests\Support\Processes\Payloads\FakePayload;
+use IBroStudio\PipedTasks\Tests\Support\Processes\Tasks\FakeTask;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Event;
 use MichaelRubel\EnhancedPipeline\Events\PipeExecutionFinished;
@@ -78,6 +78,32 @@ it('can run a pre-added injected task from config', function () {
     ]);
     (new FakeProcess)->run(new FakePayload);
 
+    Event::assertDispatched(PipeExecutionStarted::class, function (PipeExecutionStarted $event) {
+        return $event->pipe === FakeTask::class;
+    });
+    Event::assertDispatched(PipeExecutionFinished::class, function (PipeExecutionFinished $event) {
+        return $event->pipe instanceof FakeTask;
+    });
+});
+
+it('can handle a process', function () {
+    Event::fake();
+    Config::set('piped-tasks', [
+        'tasks' => [
+            FakeProcess::class => [
+                'prepend' => [],
+                'append' => [FakeTask::class],
+            ],
+        ],
+    ]);
+    $process = FakeProcess::handle(['value1', ['value2', 'value3']]);
+
+    expect($process)->toBeInstanceOf(Payload::class)
+        ->and($process->getProperty1())->toBe('value1')
+        ->and($process->getProperty2())->toMatchArray(['value2', 'value3']);
+
+    Event::assertDispatched(PipelineStarted::class);
+    Event::assertDispatched(PipelineFinished::class);
     Event::assertDispatched(PipeExecutionStarted::class, function (PipeExecutionStarted $event) {
         return $event->pipe === FakeTask::class;
     });

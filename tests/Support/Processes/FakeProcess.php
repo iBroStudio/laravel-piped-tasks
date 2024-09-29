@@ -1,6 +1,6 @@
 <?php
 
-namespace IBroStudio\PipedTasks\Tests\Support;
+namespace IBroStudio\PipedTasks\Tests\Support\Processes;
 
 use IBroStudio\PipedTasks\Process;
 

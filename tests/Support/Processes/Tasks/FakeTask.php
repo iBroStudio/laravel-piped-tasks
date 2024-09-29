@@ -1,8 +1,9 @@
 <?php
 
-namespace IBroStudio\PipedTasks\Tests\Support;
+namespace IBroStudio\PipedTasks\Tests\Support\Processes\Tasks;
 
 use Closure;
+use IBroStudio\PipedTasks\Tests\Support\Processes\Payloads\FakePayload;
 
 class FakeTask
 {

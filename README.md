@@ -325,6 +325,16 @@ $process = (new CreateOrderProcess)
     
 $process->getOrder();
 ```
+or in a simplier way:
+```php
+<?php
+
+use App\Processes\CreateOrderProcess;
+
+$process = CreateOrderProcess::handle(['your cart model']);
+    
+$process->getOrder();
+```
 
 ## Append / prepend tasks
 

@@ -9,7 +9,7 @@ use function Pest\Laravel\artisan;
 it('can generate a new process', function () {
 
     artisan(MakeProcessCommand::class, ['name' => 'ActionFakeProcess', '--force' => true])
-        ->assertExitCode(Command::SUCCESS);
+        ->assertExitCode(0);
 
     expect(
         app_path('Processes/ActionFakeProcess.php')
