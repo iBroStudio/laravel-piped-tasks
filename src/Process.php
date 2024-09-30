@@ -30,7 +30,7 @@ abstract class Process
         return $next($payload);
     }
 
-    public static function handle(array $payload_properties): mixed
+    public static function handleWith(array $payload_properties): mixed
     {
         $process_class = get_called_class();
 

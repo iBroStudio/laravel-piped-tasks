@@ -331,7 +331,7 @@ or in a simplier way:
 
 use App\Processes\CreateOrderProcess;
 
-$process = CreateOrderProcess::handle(['your cart model']);
+$process = CreateOrderProcess::handleWith(['your cart model']);
     
 $process->getOrder();
 ```
