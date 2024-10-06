@@ -1,7 +1,6 @@
 <?php
 
 use IBroStudio\PipedTasks\Commands\MakeTaskCommand;
-use Symfony\Component\Console\Command\Command;
 
 use function Pest\Laravel\artisan;
 

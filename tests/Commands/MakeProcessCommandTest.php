@@ -2,7 +2,6 @@
 
 use IBroStudio\PipedTasks\Commands\MakeProcessCommand;
 use IBroStudio\PipedTasks\Exceptions\BadProcessNameException;
-use Symfony\Component\Console\Command\Command;
 
 use function Pest\Laravel\artisan;
 

@@ -3,6 +3,7 @@
 namespace IBroStudio\PipedTasks;
 
 use Closure;
+use IBroStudio\PipedTasks\Contracts\Payload;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
@@ -30,7 +31,7 @@ abstract class Process
         return $next($payload);
     }
 
-    public static function handleWith(array $payload_properties): mixed
+    public static function handleWith(array|string $payload_properties): mixed
     {
         $process_class = get_called_class();
 
@@ -47,6 +48,10 @@ abstract class Process
 
         if (! class_exists($payload_class)) {
             throw new RuntimeException("Payload class '{$payload_class}' not found.");
+        }
+
+        if (is_string($payload_properties)) {
+            return (new static)->run(unserialize($payload_properties));
         }
 
         return (new static)->run(

@@ -23,6 +23,7 @@ class PipedTasksServiceProvider extends PackageServiceProvider
                 MakePayloadInterfaceCommand::class,
                 MakeProcessCommand::class,
                 MakeTaskCommand::class
-            );
+            )
+            ->hasRoute('web');
     }
 }

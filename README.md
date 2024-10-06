@@ -250,20 +250,13 @@ final class MakePaymentAction
 **4. Add tasks to the process**
 
 Under the hood, process uses Michael Rubel's [Laravel Enhanced Pipeline](https://github.com/michael-rubel/laravel-enhanced-pipeline) and supports all features from it like DB transaction or events:
+
 ```php
 <?php
 
 namespace App\Processes;
 
-use App\Processes\Payloads\CreateOrderPayload;
-use App\Processes\Tasks\CreateOrderTask;
-use App\Processes\Tasks\GenerateInvoiceTask;
-use App\Processes\Tasks\MakePaymentTask;
-use App\Processes\Tasks\NewOrderNotificationTask;
-use App\Processes\Tasks\SendInvoiceToCustomerTask;
-use Closure;
-use IBroStudio\PipedTasks\Payload;
-use IBroStudio\PipedTasks\Process;
+use App\Processes\Payloads\CreateOrderPayload;use App\Processes\Tasks\CreateOrderTask;use App\Processes\Tasks\GenerateInvoiceTask;use App\Processes\Tasks\MakePaymentTask;use App\Processes\Tasks\NewOrderNotificationTask;use App\Processes\Tasks\SendInvoiceToCustomerTask;use Closure;use IBroStudio\PipedTasks\Contracts\Payload;use IBroStudio\PipedTasks\Process;
 
 class CreateOrderProcess extends Process
 {

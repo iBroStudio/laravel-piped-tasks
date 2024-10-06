@@ -2,7 +2,7 @@
 
 namespace IBroStudio\PipedTasks\Tests\Support\Processes\Payloads;
 
-use IBroStudio\PipedTasks\Payload;
+use IBroStudio\PipedTasks\Contracts\Payload;
 
 class FakePayload implements Payload
 {

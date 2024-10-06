@@ -28,9 +28,10 @@ class TestCase extends Orchestra
     {
         config()->set('database.default', 'testing');
 
-        /*
-        $migration = include __DIR__.'/../database/migrations/create_laravel-piped-tasks_table.php.stub';
+        $migration = include __DIR__.'/../database/migrations/2024_10_05_142931_create_processes_table.php';
         $migration->up();
-        */
+
+        $migration = include __DIR__.'/../database/migrations/2024_10_05_143615_create_processes_tasks_table.php';
+        $migration->up();
     }
 }

@@ -19,10 +19,11 @@
     "version": "1.3.2",
     "require": {
         "php": "^8.2",
+        "filament/support": "^3.2",
+        "illuminate/contracts": "^11.0",
         "michael-rubel/laravel-enhanced-pipeline": "^4.0",
         "spatie/laravel-package-tools": "^1.14.0",
-        "spatie/laravel-queueable-action": "^2.14",
-        "illuminate/contracts": "^11.0"
+        "spatie/laravel-queueable-action": "^2.14"
     },
     "require-dev": {
         "laravel/pint": "^1.0",
@@ -38,7 +39,8 @@
     },
     "autoload": {
         "psr-4": {
-            "IBroStudio\\PipedTasks\\": "src/"
+            "IBroStudio\\PipedTasks\\": "src/",
+            "IBroStudio\\PipedTasks\\Database\\Factories\\": "database/factories/"
         }
     },
     "autoload-dev": {

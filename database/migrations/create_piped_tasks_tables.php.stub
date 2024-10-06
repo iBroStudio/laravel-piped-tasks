@@ -1,0 +1,31 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up()
+    {
+        Schema::create('procedures', function (Blueprint $table) {
+            $table->id();
+            $table->string('state');
+            $table->timestamp('started_at')->nullable();
+            $table->timestamp('ended_at')->nullable();
+        });
+
+        Schema::create('procedure_processes', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->foreignId('procedure_id')
+                ->index()
+                ->constrained('procedures')
+                ->onDelete('cascade');
+            $table->string('process');
+            $table->json('payload');
+            $table->string('state');
+            $table->timestamp('started_at');
+            $table->timestamp('ended_at');
+        });
+    }
+};

@@ -1,6 +1,6 @@
 <?php
 
-use IBroStudio\PipedTasks\Payload;
+use IBroStudio\PipedTasks\Contracts\Payload;
 use IBroStudio\PipedTasks\Process;
 use IBroStudio\PipedTasks\Tests\Support\Processes\FakeProcess;
 use IBroStudio\PipedTasks\Tests\Support\Processes\Payloads\FakePayload;
@@ -96,7 +96,7 @@ it('can handle a process', function () {
             ],
         ],
     ]);
-    $process = FakeProcess::handle(['value1', ['value2', 'value3']]);
+    $process = FakeProcess::handleWith(['value1', ['value2', 'value3']]);
 
     expect($process)->toBeInstanceOf(Payload::class)
         ->and($process->getProperty1())->toBe('value1')
