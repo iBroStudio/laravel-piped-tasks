@@ -10,8 +10,6 @@ class MakeTaskCommand extends BaseGeneratorCommand
 {
     protected $name = 'make:piped-task';
 
-    //protected $signature = 'make:piped-task {name} {--payload=} {--force} {--package} {--vendor} {--namespace}';
-
     public $description = 'Generate a piped task';
 
     protected $type = 'Task';
@@ -117,6 +115,15 @@ class MakeTaskCommand extends BaseGeneratorCommand
                 'f',
                 InputOption::VALUE_NONE,
                 'Create the Task class even if the file already exists.',
+            ],
+        ];
+    }
+
+    protected function promptForMissingArgumentsUsing()
+    {
+        return [
+            'name' => [
+                'What should the task be named?', 'E.g. CleanDirectoryTask',
             ],
         ];
     }

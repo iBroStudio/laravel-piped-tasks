@@ -8,12 +8,22 @@ A **process** defines the order of **tasks** executed through a pipe.
 
 Each process is associated with a **payload**. Payload is a mutable object passed to each task to retrieve, add, or update data.
 
+Each steps of a process can be loggued through [Spatie laravel-activitylog](https://github.com/spatie/laravel-activitylog).
+
+You can use external tasks inside a process with the **Resumable** feature.
+
 ## Installation
 
 Install the package via composer:
 
 ```bash
 composer require ibrostudio/laravel-piped-tasks
+```
+
+Then create the tables:
+
+```bash
+php artisan piped-tasks:install
 ```
 
 ## Usage
@@ -27,9 +37,12 @@ php artisan make:piped-process CreateOrderProcess
 
 Name your process like this : **\<Action>\<Domain>Process**
 
+***Note:*** It is possible to generate processes and tasks for a package.
+
 **2. Define Payload**
 
-You'll find the associated payload to your process in `App\Processes\Payloads` and its interface in `App\Processes\Payloads\Contracts`
+You'll find the associated payload to your process in `App\Processes\Payloads` and its interface in `App\Processes\Payloads\Contracts`.
+
 Add properties and methods according to your workflow:
 ```php
 <?php
@@ -66,8 +79,9 @@ use App\Models\Cart;
 use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\Payment;
+use IBroStudio\PipedTasks\PayloadAbstract;
 
-final class CreateOrderPayload implements Payload, OrderPayload
+final class CreateOrderPayload extends PayloadAbstract implements OrderPayload
 {
   public function __construct(
     protected Cart $cart,
@@ -152,8 +166,9 @@ use App\Models\Cart;
 use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\Payment;
+use IBroStudio\PipedTasks\PayloadAbstract;
 
-final class CreateOrderPayload implements Payload, OrderPayload
+final class CreateOrderPayload extends PayloadAbstract implements OrderPayload
 {
     use OrderPayloadMethods;
     
@@ -175,8 +190,9 @@ use App\Models\Cart;
 use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\Payment;
+use IBroStudio\PipedTasks\PayloadAbstract;
 
-final class RebillOrderPayload implements Payload, OrderPayload
+final class RebillOrderPayload extends PayloadAbstract implements OrderPayload
 {
     use OrderPayloadMethods;
     
@@ -256,48 +272,18 @@ Under the hood, process uses Michael Rubel's [Laravel Enhanced Pipeline](https:/
 
 namespace App\Processes;
 
-use App\Processes\Payloads\CreateOrderPayload;use App\Processes\Tasks\CreateOrderTask;use App\Processes\Tasks\GenerateInvoiceTask;use App\Processes\Tasks\MakePaymentTask;use App\Processes\Tasks\NewOrderNotificationTask;use App\Processes\Tasks\SendInvoiceToCustomerTask;use Closure;use IBroStudio\PipedTasks\Contracts\Payload;use IBroStudio\PipedTasks\Process;
+use App\Processes\Tasks;
+use IBroStudio\PipedTasks\Models\Process;
 
 class CreateOrderProcess extends Process
 {
     protected array $tasks = [
-        CreateOrderTask::class,
-        MakePaymentTask::class,
-        GenerateInvoiceTask::class,
-        SendInvoiceToCustomerTask::class,
-        NewOrderNotificationTask::class,
+        Tasks\CreateOrderTask::class,
+        Tasks\MakePaymentTask::class,
+        Tasks\GenerateInvoiceTask::class,
+        Tasks\SendInvoiceToCustomerTask::class,
+        Tasks\NewOrderNotificationTask::class,
     ];
-
-    protected bool $withTransaction = true;
-
-    public function onSuccess(): static
-    {
-        $this->onSuccess = function (CreateOrderPayload|Payload $payload) {
-            //
-
-            return $payload;
-        };
-
-        return $this;
-    }
-
-    public function onFailure(): static
-    {
-        $this->onFailure = function (CreateOrderPayload|Payload $payload, $exception) {
-            //
-
-            return $payload;
-        };
-
-        return $this;
-    }
-
-    public function __invoke(Payload $payload, Closure $next): mixed
-    {
-        $this->run($payload);
-
-        return $next($payload);
-    }
 }
 ```
 
@@ -309,25 +295,158 @@ class CreateOrderProcess extends Process
 use App\Processes\CreateOrderProcess;
 use App\Processes\Payloads\CreateOrderPayload;
 
-$process = (new CreateOrderProcess)
-    ->run(
-        new CreateOrderPayload(
-            cart: 'your cart model'
-        )
-    );
+$process = CreateOrderProcess::process(['cart' => $cart]);
     
 $process->getOrder();
 ```
-or in a simplier way:
+Argument passed to the `process` static method is an array used to build the Payload.
+
+
+## Processable models
+
+You can link processes to any Eloquent model implementing the `Processable` interface and using the `IsProcessable` trait:
+
 ```php
 <?php
 
+namespace App\Models;
+
+use IBroStudio\PipedTasks\Concerns\IsProcessable;
+use IBroStudio\PipedTasks\Contracts\Processable;
+use Illuminate\Database\Eloquent\Model;
+
+class Cart extends Model implements Processable
+{
+    use IsProcessable;
+}
+```
+
+It allows to call process from the model:
+
+```php
+<?php
+
+$cart->process(CreateOrderProcess::class);
+```
+
+And permits to access to the model in tasks:
+
+```php
+<?php
+
+namespace App\Processes\Tasks;
+
+use App\Processes\Payloads\Contracts\OrderPayload;
+use Closure;
+
+class CreateOrderTask
+{
+    public function __invoke(OrderPayload $payload, Closure $next): mixed
+    {
+        $cart = $payload->getProcess()->processable;
+
+        return $next($payload);
+    }
+}
+```
+
+### Adding processable during process
+
+If the processable model is created during a process, you can assign it to the process in a task:
+
+```php
+<?php
+
+use App\Models\Order;
 use App\Processes\CreateOrderProcess;
 
-$process = CreateOrderProcess::handleWith(['your cart model']);
-    
-$process->getOrder();
+Order::callProcess(CreateOrderProcess::class)
 ```
+
+```php
+<?php
+
+namespace App\Processes\Tasks;
+
+use App\Models\Order;
+use App\Processes\Payloads\Contracts\OrderPayload;
+use Closure;
+
+class CreateOrderTask
+{
+    public function __invoke(OrderPayload $payload, Closure $next): mixed
+    {
+        $payload->getProcess()->addProcessable(
+            Order::create([...]);
+        );
+
+        return $next($payload);
+    }
+}
+```
+
+## Pause and resume processes
+
+Sometimes an external task needs to be performed to complete a process. You can include it in your workflow by using `PauseProcess` and the `resumeUrl`:
+
+1. Define a task in your process where you want to make your external call :
+
+```php
+<?php
+
+namespace App\Processes\Tasks;
+
+use App\Models\Order;
+use App\Processes\Payloads\Contracts\MyProcessPayload;
+use Closure;
+use IBroStudio\PipedTasks\PauseProcess;
+
+class CallExternalTask
+{
+    public function __invoke(MyProcessPayload $payload, Closure $next): mixed
+    {
+        // Here call your external service allowing to include a webhook url  
+        // Webhook url to use to resume the process can be retrieved with $payload->getProcess()->resumeUrl()
+
+        return new PauseProcess;
+    }
+}
+```
+
+The `$process->resumeUrl()` method returns a **Laravel signed url**.
+
+## Process logs
+
+To enable process logs, set `log_processes` key to `true` in config/piped-tasks.php.
+
+[Spatie laravel-activitylog](https://github.com/spatie/laravel-activitylog) methods are available to retrieve logs:
+
+```php
+<?php
+
+use Spatie\Activitylog\Models\Activity;
+
+$log = Activity::all()->last();
+
+$logs = Activity::inLog('process-name')->get();
+```
+
+By default, the Process name is used to name the log but you can customize it by adding `$logName` property to the Process:
+
+```php
+<?php
+
+namespace App\Processes;
+
+use App\Processes\Tasks;
+use IBroStudio\PipedTasks\Models\Process;
+
+class CreateOrderProcess extends Process
+{
+    public static ?string $logName = 'orders';
+}
+```
+
 
 ## Append / prepend tasks
 

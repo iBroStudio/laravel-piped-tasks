@@ -2,10 +2,10 @@
 
 namespace DummyNamespace;
 
-use IBroStudio\PipedTasks\Payload;
+use IBroStudio\PipedTasks\PayloadAbstract;
 use DummyInterfaceNamespace\DummyPayloadInterface;
 
-final class DummyClass implements Payload, DummyPayloadInterface
+final class DummyClass extends PayloadAbstract implements DummyPayloadInterface
 {
   public function __construct(
       //

@@ -2,63 +2,59 @@
 
 namespace IBroStudio\PipedTasks\Models;
 
-use IBroStudio\PipedTasks\Enums\StatesEnum;
+use IBroStudio\PipedTasks\Concerns\CanBeResumed;
+use IBroStudio\PipedTasks\Concerns\HasLogData;
+use IBroStudio\PipedTasks\Concerns\HasLogs;
+use IBroStudio\PipedTasks\Concerns\HasProcessable;
+use IBroStudio\PipedTasks\Concerns\HasTasks;
+use IBroStudio\PipedTasks\Concerns\ModelIsProcess;
+use IBroStudio\PipedTasks\Contracts\Payload;
+use IBroStudio\PipedTasks\Contracts\ProcessModelContract;
+use IBroStudio\PipedTasks\Enums\ProcessStatesEnum;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\URL;
 
 /**
+ * @property int $id
  * @property string $class
- * @property string $payload
- * @property StatesEnum $state
+ * @property Payload $payload
+ * @property ProcessStatesEnum $state
+ * @property string $log_batch_uuid
  */
-class Process extends Model
+class Process extends Model implements ProcessModelContract
 {
+    use CanBeResumed;
     use HasFactory;
+    use HasLogData;
+    use HasLogs;
+    use HasProcessable;
+    use HasTasks;
+    use ModelIsProcess;
+
+    protected $table = 'processes';
 
     protected $fillable = [
         'class',
         'payload',
         'state',
+        'log_batch_uuid',
         'ended_at',
     ];
 
     protected function casts(): array
     {
         return [
-            'state' => StatesEnum::class,
+            'state' => ProcessStatesEnum::class,
             'started_at' => 'timestamp',
             'ended_at' => 'timestamp',
         ];
     }
 
-    public function tasks(): HasMany
+    protected function payload(): Attribute
     {
-        return $this->hasMany(Task::class);
-    }
-
-    public function task(string $class): Task
-    {
-        return $this->tasks()->where('class', $class)->first();
-    }
-
-    public function currentTask(): Task
-    {
-        return $this->tasks()->where('state', StatesEnum::PROCESSING)->first();
-    }
-
-    public function resumeUrl(): string
-    {
-        return URL::signedRoute('piped-tasks-process', ['process_id' => $this]);
-    }
-
-    public static function resume(int $process_id): mixed
-    {
-        $process = self::whereId($process_id)
-            ->whereState(StatesEnum::PENDING)
-            ->firstOrFail();
-
-        return $process->class::resume($process);
+        return Attribute::make(
+            get: fn (string $value) => unserialize($value),
+        );
     }
 }

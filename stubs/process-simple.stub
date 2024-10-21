@@ -4,15 +4,15 @@ namespace DummyNamespace;
 
 use DummyPayloadNamespace\DummyPayloadClass;
 use IBroStudio\PipedTasks\Payload;
-use IBroStudio\PipedTasks\Process;
+use IBroStudio\PipedTasks\SimpleProcess;
 
-class DummyClass extends Process
+class DummyClass extends SimpleProcess
 {
     protected array $tasks = [
         //
     ];
 
-    public static ?string $logName = null;
+    protected bool $withEvents = false;
 
     protected bool $withTransaction = false;
 

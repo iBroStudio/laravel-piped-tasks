@@ -52,7 +52,7 @@ class MakePayloadCommand extends BaseGeneratorCommand
     {
         $stub = str_replace(
             ['DummyPayloadInterface', 'DummyInterfaceNamespace'],
-            [$this->payloadInterface, $this->payloadInterfaceNamespace],
+            [$this->payloadInterface, Str::replace('\\\\', '\\', $this->payloadInterfaceNamespace)],
             $stub
         );
 

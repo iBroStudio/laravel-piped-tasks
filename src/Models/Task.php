@@ -2,11 +2,15 @@
 
 namespace IBroStudio\PipedTasks\Models;
 
-use IBroStudio\PipedTasks\Enums\StatesEnum;
+use IBroStudio\PipedTasks\Enums\ProcessStatesEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property string $class
+ * @property ProcessStatesEnum $state
+ */
 class Task extends Model
 {
     use HasFactory;
@@ -31,7 +35,7 @@ class Task extends Model
     protected function casts(): array
     {
         return [
-            'state' => StatesEnum::class,
+            'state' => ProcessStatesEnum::class,
             'started_at' => 'timestamp',
             'ended_at' => 'timestamp',
         ];

@@ -1,0 +1,57 @@
+<?php
+
+namespace IBroStudio\PipedTasks\Enums;
+
+use Filament\Support\Contracts\HasColor;
+use Filament\Support\Contracts\HasIcon;
+use Filament\Support\Contracts\HasLabel;
+
+enum ProcessStatesEnum: string implements HasColor, HasIcon, HasLabel
+{
+    case PENDING = 'pending';
+    case STARTED = 'started';
+    case PROCESSING = 'processing';
+    case WAITING = 'waiting';
+    case RESUME = 'resume';
+    case COMPLETED = 'completed';
+    case FAILED = 'failed';
+
+    public function getLabel(): ?string
+    {
+        return match ($this) {
+            self::PENDING => 'pending',
+            self::STARTED => 'started',
+            self::PROCESSING => 'processing',
+            self::WAITING => 'waiting',
+            self::RESUME => 'resume',
+            self::COMPLETED => 'completed',
+            self::FAILED => 'failed',
+        };
+    }
+
+    public function getColor(): ?string
+    {
+        return match ($this) {
+            self::PENDING => 'gray',
+            self::STARTED => 'info',
+            self::PROCESSING => 'warning',
+            self::WAITING => 'gray',
+            self::RESUME => 'info',
+            self::COMPLETED => 'success',
+            self::FAILED => 'danger',
+        };
+    }
+
+    public function getIcon(): ?string
+    {
+        return match ($this) {
+            self::PENDING => 'heroicon-m-clock',
+            self::STARTED => 'heroicon-m-play',
+            self::PROCESSING => 'heroicon-m-cog-6-tooth',
+            self::WAITING => 'heroicon-m-clock',
+            self::RESUME => 'heroicon-m-cog-6-tooth',
+            self::COMPLETED => 'heroicon-m-check',
+            self::FAILED => 'heroicon-m-x-mark',
+        };
+    }
+}
