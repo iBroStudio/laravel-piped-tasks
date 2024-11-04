@@ -9,6 +9,7 @@ use IBroStudio\PipedTasks\Contracts\Processable;
 use IBroStudio\PipedTasks\ProcessPipeline;
 use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -33,7 +34,7 @@ trait IsProcess
      * @return ($async is true ? PendingDispatch : Payload)
      */
     public static function process(
-        array $payload_properties = [],
+        array|Collection $payload_properties = [],
         ?Processable $processable = null,
         bool $async = false): Payload|PendingDispatch
     {
@@ -59,7 +60,7 @@ trait IsProcess
         return new static;
     }
 
-    public static function makePayload(array $payload_properties = []): Payload
+    public static function makePayload(array|Collection $payload_properties = []): Payload
     {
         $payloadClass = static::guessPayloadClass(get_called_class());
 

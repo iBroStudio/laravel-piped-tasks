@@ -26,6 +26,7 @@ trait ModelIsProcess
             'class' => get_called_class(),
             'payload' => serialize($payload),
             'state' => ProcessStatesEnum::PENDING,
+            'parent_process_id' => $payload->getProcess()?->id,
         ]);
 
         $process->taskModels()->createMany(

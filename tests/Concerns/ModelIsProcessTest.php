@@ -4,6 +4,7 @@ use IBroStudio\PipedTasks\Actions\UpdateProcessStateAction;
 use IBroStudio\PipedTasks\Contracts\Payload;
 use IBroStudio\PipedTasks\Enums\ProcessStatesEnum;
 use IBroStudio\TestSupport\Processes\LongFakeNameProcess;
+use IBroStudio\TestSupport\Processes\MultipleProcess;
 use IBroStudio\TestSupport\Processes\Tasks\LongFakeActionTask;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Queue;
@@ -41,4 +42,12 @@ it('runs eloquent process with events', function () {
     });
 
     QueueableActionFake::assertPushed(UpdateProcessStateAction::class);
+});
+
+it('can execute a process within a process', function () {
+    $resultPayload = MultipleProcess::process();
+
+    $process = MultipleProcess::first();
+dd($process->taskModels->toArray());
+    expect($process->state)->toBe(ProcessStatesEnum::COMPLETED);
 });

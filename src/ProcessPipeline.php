@@ -7,6 +7,8 @@ use IBroStudio\PipedTasks\Actions\PauseProcessAction;
 use IBroStudio\PipedTasks\Actions\UpdateProcessStateAction;
 use IBroStudio\PipedTasks\Actions\UpdateTaskStateAction;
 use IBroStudio\PipedTasks\Concerns\HasActions;
+use IBroStudio\PipedTasks\Contracts\ProcessModelContract;
+use IBroStudio\PipedTasks\Contracts\ProcessContract;
 use IBroStudio\PipedTasks\Enums\ProcessStatesEnum;
 use IBroStudio\PipedTasks\Events\PipeExecutionPaused;
 use Illuminate\Container\Container as ContainerConcrete;
@@ -17,6 +19,7 @@ use MichaelRubel\EnhancedPipeline\Events\PipelineFinished;
 use MichaelRubel\EnhancedPipeline\Events\PipelineStarted;
 use MichaelRubel\EnhancedPipeline\Pipeline;
 use Throwable;
+use IBroStudio\TestSupport\Processes\Tasks\LongFakeActionTask;
 
 class ProcessPipeline extends Pipeline
 {
@@ -67,6 +70,7 @@ class ProcessPipeline extends Pipeline
 
             $this->updateProcessAction(ProcessStatesEnum::COMPLETED);
 
+            dd($this->passable->getProcess()->refresh());
             $this->fireEvent(PipelineFinished::class,
                 $destination,
                 $this->passable,
@@ -127,9 +131,18 @@ class ProcessPipeline extends Pipeline
                     $parameters = [$passable, $stack];
                 }
 
+                $carry = match(true) {
+                    is_a($pipe, ProcessModelContract::class) => $pipe::process($passable->toCollection()),
+                    is_a($pipe, ProcessContract::class) => $pipe::process($passable->toCollection()),
+                    method_exists($pipe, $this->method) => dd('method_exists'),//$pipe->{$this->method}(...$parameters),
+                    default => ! $pipe instanceof LongFakeActionTask ? dd($pipe, $stack) : $pipe(...$parameters),
+                };
+
+                /*
                 $carry = method_exists($pipe, $this->method)
                     ? $pipe->{$this->method}(...$parameters)
                     : $pipe(...$parameters);
+                */
 
                 if ($carry instanceof PauseProcess) {
                     $this->updateTaskAction(get_class($pipe), ProcessStatesEnum::WAITING);

@@ -13,12 +13,14 @@ return new class extends Migration
         Schema::create('processes', function (Blueprint $table) {
             $table->id();
             $table->string('class');
-            $table->string('payload');
+            $table->longText('payload');
             $table->string('state')->default(ProcessStatesEnum::PENDING);
             $table->nullableMorphs('processable');
+            $table->unsignedBigInteger('parent_process_id');
             $table->string('log_batch_uuid')->nullable();
             $table->timestamps();
             $table->timestamp('ended_at')->nullable();
+            $table->foreign('parent_process_id')->references('id')->on('processes');
         });
 
         Schema::create('processes_tasks', function (Blueprint $table) {

@@ -9,7 +9,7 @@ interface Payload
 {
     public function setProcess(ProcessContract|ProcessModelContract $process): void;
 
-    public function getProcess(): ProcessContract|ProcessModelContract;
+    public function getProcess(): ProcessContract|ProcessModelContract|null;
 
     public function toArray(): array;
 }

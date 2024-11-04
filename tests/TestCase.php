@@ -25,7 +25,8 @@ class TestCase extends Orchestra
             '--provider' => 'Spatie\Activitylog\ActivitylogServiceProvider',
             '--tag' => 'activitylog-migrations',
         ])->run();
-        $this->artisan('migrate', ['--database' => 'testing'])->run();
+
+        $this->artisan('migrate')->run();
     }
 
     protected function getPackageProviders($app)
@@ -43,7 +44,7 @@ class TestCase extends Orchestra
         config()->set('database.default', 'testing');
 
         /*
-        $migration = include __DIR__.'/../database/migrations/2024_10_05_142931_create_processes_table.php';
+$migration = include __DIR__.'/../database/migrations/2024_10_05_142931_create_piped_tasks_tables.php';
         $migration->up();
 
         $migration = include __DIR__.'/../database/migrations/2024_10_05_143615_create_processes_tasks_table.php';

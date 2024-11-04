@@ -7,6 +7,7 @@ use IBroStudio\PipedTasks\Contracts\ProcessContract;
 use IBroStudio\PipedTasks\Contracts\ProcessModelContract;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Collection;
 use ReflectionClass;
 use ReflectionProperty;
 
@@ -17,19 +18,19 @@ abstract class PayloadAbstract implements Arrayable, Payload
 {
     use SerializesModels;
 
-    protected ProcessContract|ProcessModelContract $process;
+    protected ProcessContract|ProcessModelContract|null $process = null;
 
     public function setProcess(ProcessContract|ProcessModelContract $process): void
     {
         $this->process = $process;
     }
 
-    public function getProcess(): ProcessContract|ProcessModelContract
+    public function getProcess(): ProcessContract|ProcessModelContract|null
     {
         return $this->process;
     }
 
-    public function toArray(): array
+    public function toCollection(): Collection
     {
         $reflection = new ReflectionClass($this);
 
@@ -39,7 +40,11 @@ abstract class PayloadAbstract implements Arrayable, Payload
             })
             ->mapWithKeys(function (ReflectionProperty $property) {
                 return [$property->getName() => $property->getValue($this)];
-            })
-            ->toArray();
+            });
+    }
+
+    public function toArray(): array
+    {
+        return $this->toCollection()->toArray();
     }
 }

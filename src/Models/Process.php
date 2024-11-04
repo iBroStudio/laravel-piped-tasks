@@ -14,6 +14,7 @@ use IBroStudio\PipedTasks\Enums\ProcessStatesEnum;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int $id
@@ -39,6 +40,7 @@ class Process extends Model implements ProcessModelContract
         'payload',
         'state',
         'log_batch_uuid',
+        'parent_process_id',
         'ended_at',
     ];
 
@@ -56,5 +58,10 @@ class Process extends Model implements ProcessModelContract
         return Attribute::make(
             get: fn (string $value) => unserialize($value),
         );
+    }
+
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(Process::class);
     }
 }
