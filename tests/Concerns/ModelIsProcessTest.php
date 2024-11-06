@@ -3,6 +3,8 @@
 use IBroStudio\PipedTasks\Actions\UpdateProcessStateAction;
 use IBroStudio\PipedTasks\Contracts\Payload;
 use IBroStudio\PipedTasks\Enums\ProcessStatesEnum;
+use IBroStudio\PipedTasks\Models\Process;
+use IBroStudio\PipedTasks\Models\Task;
 use IBroStudio\TestSupport\Processes\LongFakeNameProcess;
 use IBroStudio\TestSupport\Processes\MultipleProcess;
 use IBroStudio\TestSupport\Processes\Tasks\LongFakeActionTask;
@@ -45,9 +47,15 @@ it('runs eloquent process with events', function () {
 });
 
 it('can execute a process within a process', function () {
-    $resultPayload = MultipleProcess::process();
+    MultipleProcess::process();
 
-    $process = MultipleProcess::first();
-dd($process->taskModels->toArray());
-    expect($process->state)->toBe(ProcessStatesEnum::COMPLETED);
+    $main_process = Process::whereClass(MultipleProcess::class)->first();
+    $child_process = Process::whereClass(LongFakeNameProcess::class)->first();
+
+    expect($main_process->state)->toBe(ProcessStatesEnum::COMPLETED)
+        ->and($child_process->state)->toBe(ProcessStatesEnum::COMPLETED);
+
+    Task::all()->each(function (Task $task) {
+        expect($task->state)->toBe(ProcessStatesEnum::COMPLETED);
+    });
 });

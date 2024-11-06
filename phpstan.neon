@@ -1,0 +1,9 @@
+
+parameters:
+    paths:
+        - config/
+        - database/
+        - routes/
+        - src/
+    level: 5
+    checkModelProperties: true

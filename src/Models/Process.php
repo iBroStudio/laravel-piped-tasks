@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property Payload $payload
  * @property ProcessStatesEnum $state
  * @property string $log_batch_uuid
+ * @property int $parent_process_id
  */
 class Process extends Model implements ProcessModelContract
 {
@@ -62,6 +63,6 @@ class Process extends Model implements ProcessModelContract
 
     public function parent(): BelongsTo
     {
-        return $this->belongsTo(Process::class);
+        return $this->belongsTo(Process::class, 'parent_process_id');
     }
 }

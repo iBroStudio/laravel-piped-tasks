@@ -5,6 +5,7 @@ namespace IBroStudio\PipedTasks\Concerns;
 use IBroStudio\PipedTasks\Actions\LogProcessAction;
 use IBroStudio\PipedTasks\Actions\RunProcessAction;
 use IBroStudio\PipedTasks\Actions\UpdateTaskStateAction;
+use IBroStudio\PipedTasks\Contracts\Payload;
 use IBroStudio\PipedTasks\Enums\ProcessStatesEnum;
 use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Support\Facades\URL;
@@ -20,11 +21,16 @@ trait CanBeResumed
         ]);
     }
 
-    public static function resume(int $process_id): ?PendingDispatch
+    public static function resume(int $process_id, ?Payload $payload = null): ?PendingDispatch
     {
         $process = self::whereId($process_id)
             ->whereState(ProcessStatesEnum::WAITING)
             ->firstOrFail();
+
+        if (! is_null($payload)) {
+            $process->update(['payload' => serialize($payload)]);
+            $process->refresh();
+        }
 
         $process->payload->setProcess($process);
 

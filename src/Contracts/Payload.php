@@ -2,14 +2,16 @@
 
 namespace IBroStudio\PipedTasks\Contracts;
 
+use IBroStudio\PipedTasks\Models\Process;
+
 /**
- * @property ProcessContract|ProcessModelContract $process
+ * @property Process|ProcessContract|ProcessModelContract $process
  */
 interface Payload
 {
-    public function setProcess(ProcessContract|ProcessModelContract $process): void;
+    public function setProcess(Process|ProcessContract|ProcessModelContract $process): void;
 
-    public function getProcess(): ProcessContract|ProcessModelContract|null;
+    public function getProcess(): Process|ProcessContract|ProcessModelContract;
 
     public function toArray(): array;
 }

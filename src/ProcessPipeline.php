@@ -8,9 +8,10 @@ use IBroStudio\PipedTasks\Actions\UpdateProcessStateAction;
 use IBroStudio\PipedTasks\Actions\UpdateTaskStateAction;
 use IBroStudio\PipedTasks\Concerns\HasActions;
 use IBroStudio\PipedTasks\Contracts\ProcessModelContract;
-use IBroStudio\PipedTasks\Contracts\ProcessContract;
 use IBroStudio\PipedTasks\Enums\ProcessStatesEnum;
 use IBroStudio\PipedTasks\Events\PipeExecutionPaused;
+use IBroStudio\PipedTasks\Models\Process;
+use IBroStudio\PipedTasks\Tasks\ProcessAsTask;
 use Illuminate\Container\Container as ContainerConcrete;
 use Illuminate\Contracts\Container\Container;
 use MichaelRubel\EnhancedPipeline\Events\PipeExecutionFinished;
@@ -19,13 +20,13 @@ use MichaelRubel\EnhancedPipeline\Events\PipelineFinished;
 use MichaelRubel\EnhancedPipeline\Events\PipelineStarted;
 use MichaelRubel\EnhancedPipeline\Pipeline;
 use Throwable;
-use IBroStudio\TestSupport\Processes\Tasks\LongFakeActionTask;
 
 class ProcessPipeline extends Pipeline
 {
     use HasActions;
 
     public function __construct(
+        protected ProcessAsTask $processAsTask,
         protected UpdateProcessStateAction $updateEloquentProcessStateAction,
         protected UpdateTaskStateAction $updateEloquentTaskStateAction,
         protected PauseProcessAction $pauseProcessAction,
@@ -70,7 +71,6 @@ class ProcessPipeline extends Pipeline
 
             $this->updateProcessAction(ProcessStatesEnum::COMPLETED);
 
-            dd($this->passable->getProcess()->refresh());
             $this->fireEvent(PipelineFinished::class,
                 $destination,
                 $this->passable,
@@ -78,6 +78,15 @@ class ProcessPipeline extends Pipeline
                 $this->useTransaction,
                 $result,
             );
+
+            if (($process = $this->passable->getProcess()) instanceof Process
+                && $parent_process_id = $process->refresh()->parent_process_id
+            ) {
+                $parentProcess = Process::find($parent_process_id);
+                $payload = $parentProcess->class::makePayload($this->passable->toCollection());
+                $payload->setProcess($parentProcess);
+                $parentProcess->class::resume($parentProcess->id, $payload);
+            }
 
             return $result;
         } catch (PauseProcess $e) {
@@ -131,23 +140,19 @@ class ProcessPipeline extends Pipeline
                     $parameters = [$passable, $stack];
                 }
 
-                $carry = match(true) {
-                    is_a($pipe, ProcessModelContract::class) => $pipe::process($passable->toCollection()),
-                    is_a($pipe, ProcessContract::class) => $pipe::process($passable->toCollection()),
-                    method_exists($pipe, $this->method) => dd('method_exists'),//$pipe->{$this->method}(...$parameters),
-                    default => ! $pipe instanceof LongFakeActionTask ? dd($pipe, $stack) : $pipe(...$parameters),
+                $carry = match (true) {
+                    is_a($pipe, Process::class) => $this->processAsTask->handle($pipe, $passable, $stack),
+                    method_exists($pipe, $this->method) => $pipe->{$this->method}(...$parameters),
+                    default => $pipe(...$parameters),
                 };
 
-                /*
-                $carry = method_exists($pipe, $this->method)
-                    ? $pipe->{$this->method}(...$parameters)
-                    : $pipe(...$parameters);
-                */
-
                 if ($carry instanceof PauseProcess) {
-                    $this->updateTaskAction(get_class($pipe), ProcessStatesEnum::WAITING);
 
-                    $this->fireEvent(PipeExecutionPaused::class, $pipe, $passable);
+                    if (! in_array($passable->getProcess()->state, [ProcessStatesEnum::COMPLETED, ProcessStatesEnum::WAITING])) {
+                        $this->updateTaskAction(get_class($pipe), ProcessStatesEnum::WAITING);
+
+                        $this->fireEvent(PipeExecutionPaused::class, $pipe, $passable);
+                    }
 
                     throw $carry;
                 }

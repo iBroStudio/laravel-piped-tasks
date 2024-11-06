@@ -16,7 +16,7 @@ return new class extends Migration
             $table->longText('payload');
             $table->string('state')->default(ProcessStatesEnum::PENDING);
             $table->nullableMorphs('processable');
-            $table->unsignedBigInteger('parent_process_id');
+            $table->unsignedBigInteger('parent_process_id')->nullable();
             $table->string('log_batch_uuid')->nullable();
             $table->timestamps();
             $table->timestamp('ended_at')->nullable();

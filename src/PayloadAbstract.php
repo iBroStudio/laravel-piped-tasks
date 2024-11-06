@@ -5,6 +5,7 @@ namespace IBroStudio\PipedTasks;
 use IBroStudio\PipedTasks\Contracts\Payload;
 use IBroStudio\PipedTasks\Contracts\ProcessContract;
 use IBroStudio\PipedTasks\Contracts\ProcessModelContract;
+use IBroStudio\PipedTasks\Models\Process;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
@@ -12,20 +13,20 @@ use ReflectionClass;
 use ReflectionProperty;
 
 /**
- * @property ProcessContract|ProcessModelContract $process
+ * @property Process|ProcessContract|ProcessModelContract $process
  */
 abstract class PayloadAbstract implements Arrayable, Payload
 {
     use SerializesModels;
 
-    protected ProcessContract|ProcessModelContract|null $process = null;
+    protected Process|ProcessContract|ProcessModelContract|null $process = null;
 
-    public function setProcess(ProcessContract|ProcessModelContract $process): void
+    public function setProcess(Process|ProcessContract|ProcessModelContract $process): void
     {
         $this->process = $process;
     }
 
-    public function getProcess(): ProcessContract|ProcessModelContract|null
+    public function getProcess(): Process|ProcessContract|ProcessModelContract
     {
         return $this->process;
     }

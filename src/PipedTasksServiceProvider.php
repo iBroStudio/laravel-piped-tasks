@@ -27,12 +27,6 @@ class PipedTasksServiceProvider extends PackageServiceProvider
                 MakeTaskCommand::class,
             )
             ->hasMigration('2024_10_05_142931_create_piped_tasks_tables')
-            ->hasRoute('web')
-            ->runsMigrations();
-    }
-
-    public function bootingPackage()
-    {
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+            ->hasRoute('web');
     }
 }

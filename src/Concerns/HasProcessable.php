@@ -3,6 +3,7 @@
 namespace IBroStudio\PipedTasks\Concerns;
 
 use IBroStudio\PipedTasks\Contracts\Processable;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 trait HasProcessable
@@ -12,7 +13,7 @@ trait HasProcessable
         return $this->morphTo();
     }
 
-    public function addProcessable(Processable $processable): bool
+    public function addProcessable(Processable|Model $processable): bool
     {
         return $this->processable()
             ->associate($processable)

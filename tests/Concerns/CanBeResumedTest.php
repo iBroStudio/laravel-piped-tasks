@@ -6,9 +6,11 @@ use IBroStudio\PipedTasks\Actions\UpdateTaskStateAction;
 use IBroStudio\PipedTasks\Contracts\Payload;
 use IBroStudio\PipedTasks\Enums\ProcessStatesEnum;
 use IBroStudio\PipedTasks\Events\PipeExecutionPaused;
+use IBroStudio\PipedTasks\Models\Process;
 use IBroStudio\PipedTasks\Models\Task;
 use IBroStudio\TestSupport\Models\FakeModel;
 use IBroStudio\TestSupport\Processes\ResumableFakeProcess;
+use IBroStudio\TestSupport\Processes\ResumableMultipleProcess;
 use IBroStudio\TestSupport\Processes\Tasks\ResumableFakeTask;
 use IBroStudio\TestSupport\Processes\Tasks\ResumableFakeTask2;
 use Illuminate\Foundation\Bus\PendingDispatch;
@@ -137,6 +139,22 @@ it('can resume a process from a signed url', function () {
     expect($process->state)->toBe(ProcessStatesEnum::COMPLETED);
 
     $process->taskModels->each(function (Task $task) {
+        expect($task->state)->toBe(ProcessStatesEnum::COMPLETED);
+    });
+});
+
+it('can execute a resumable process within a process', function () {
+    ResumableMultipleProcess::process();
+
+    $main_process = Process::whereClass(ResumableMultipleProcess::class)->first();
+    $child_process = Process::whereClass(ResumableFakeProcess::class)->first();
+
+    ResumableFakeProcess::resume($child_process->id);
+
+    expect($main_process->refresh()->state)->toBe(ProcessStatesEnum::COMPLETED)
+        ->and($child_process->refresh()->state)->toBe(ProcessStatesEnum::COMPLETED);
+
+    Task::all()->each(function (Task $task) {
         expect($task->state)->toBe(ProcessStatesEnum::COMPLETED);
     });
 });

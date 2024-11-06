@@ -4,9 +4,13 @@ namespace IBroStudio\PipedTasks\Concerns;
 
 use IBroStudio\PipedTasks\Contracts\Payload;
 use IBroStudio\PipedTasks\Contracts\Processable;
+use IBroStudio\PipedTasks\Contracts\ProcessModelContract;
 use IBroStudio\PipedTasks\Enums\ProcessStatesEnum;
 use Illuminate\Support\Arr;
 
+/**
+ * @property \Illuminate\Database\Eloquent\Model $parent_process
+ */
 trait ModelIsProcess
 {
     use IsProcess { IsProcess::getTasks as IsProcessGetTasks; }
@@ -20,13 +24,17 @@ trait ModelIsProcess
         parent::__construct($attributes);
     }
 
-    public static function makeProcess(Payload $payload, ?Processable $processable = null): self
+    public static function makeProcess(
+        Payload $payload,
+        ?Processable $processable = null,
+        ?ProcessModelContract $parent_process = null): self
     {
         $process = static::create([
             'class' => get_called_class(),
             'payload' => serialize($payload),
             'state' => ProcessStatesEnum::PENDING,
-            'parent_process_id' => $payload->getProcess()?->id,
+            // @phpstan-ignore-next-line
+            'parent_process_id' => $parent_process?->id,
         ]);
 
         $process->taskModels()->createMany(

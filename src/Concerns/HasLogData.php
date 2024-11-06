@@ -19,8 +19,8 @@ trait HasLogData
         $this->parsedProcessClass = $this->parseClass($this->class);
 
         return new ProcessLogData(
-            logName: $this->logName(),
-            performedOn: $this->processable ?? $this,
+            logName: $this->logName($payload),
+            performedOn: $this->processable ?? $this->parent ?? $this,
             event: $this->state,
             description: $this->logDescription(),
             properties: $payload->toArray(),
@@ -33,16 +33,20 @@ trait HasLogData
         $this->parsedTaskClass = $this->parseClass($task->class);
 
         return new ProcessLogData(
-            logName: $this->logName(),
-            performedOn: $this->processable ?? $this,
+            logName: $this->logName($payload),
+            performedOn: $this->processable ?? $this->parent ?? $this,
             event: $this->state,
             description: $this->logDescription($task),
             properties: $payload->toArray(),
         );
     }
 
-    protected function logName(): string
+    protected function logName(Payload $payload): string
     {
+        if (! is_null($this->parent)) {
+            return $this->parent->logData($payload)->logName;
+        }
+
         return is_null($this->class::$logName)
             ? $this->parsedProcessClass->implode('-')
             : Str::slug($this->class::$logName);

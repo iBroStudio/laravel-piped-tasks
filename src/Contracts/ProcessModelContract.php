@@ -33,8 +33,6 @@ interface ProcessModelContract
 
     public function addProcessable(Processable $processable): bool;
 
-    public function resumeUrl(): string;
-
     public function logData(Payload $payload): ProcessLogData;
 
     public function logTaskData(Task $task, Payload $payload): ProcessLogData;

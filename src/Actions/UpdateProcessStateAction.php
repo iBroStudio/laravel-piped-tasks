@@ -10,8 +10,6 @@ final class UpdateProcessStateAction
 {
     use QueueableAction;
 
-    public function __construct() {}
-
     public function execute(
         Process $process,
         ProcessStatesEnum $state

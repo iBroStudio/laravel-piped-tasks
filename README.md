@@ -415,6 +415,11 @@ class CallExternalTask
 
 The `$process->resumeUrl()` method returns a **Laravel signed url**.
 
+
+## Process within process
+
+A process can be added as a task if it shares the same payload base.
+
 ## Process logs
 
 To enable process logs, set `log_processes` key to `true` in config/piped-tasks.php.
