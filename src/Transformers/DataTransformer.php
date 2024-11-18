@@ -10,7 +10,7 @@ final class DataTransformer
 {
     public function __construct(
         public string $class,
-        public Data|array|null $value
+        public mixed $value
     ) {
         if (! is_subclass_of($this->class, Data::class)) {
             throw new \InvalidArgumentException("Class {$this->class} is not a data class");
