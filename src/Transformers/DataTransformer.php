@@ -10,7 +10,7 @@ final class DataTransformer
 {
     public function __construct(
         public string $class,
-        public Data|array $value
+        public Data|array|null $value
     ) {
         if (! is_subclass_of($this->class, Data::class)) {
             throw new \InvalidArgumentException("Class {$this->class} is not a data class");
@@ -19,7 +19,7 @@ final class DataTransformer
 
     public function transform(): Data
     {
-        if (is_subclass_of($this->value, Data::class)) {
+        if (is_subclass_of($this->value, Data::class) || is_null($this->value)) {
             return $this->value;
         }
 
