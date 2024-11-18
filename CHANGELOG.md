@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
  
+## [2.2.1](https://github.com/iBroStudio/laravel-piped-tasks/compare/v2.2.0...HEAD) (2024-11-18)
+### Bug Fixes
+* add nullable value in data transformer ([1f8204](https://github.com/iBroStudio/laravel-piped-tasks/commit/1f8204f15f573a4a80e932bc081e6b04c7648218))
+
+---
+
 ## [2.2.0](https://github.com/iBroStudio/laravel-piped-tasks/compare/v2.1.2...HEAD) (2024-11-18)
 ### Features
 * add data transformer ([0b3fad](https://github.com/iBroStudio/laravel-piped-tasks/commit/0b3fadbff3afccb85421052ea0e4259afd2b9892))
