@@ -17,7 +17,7 @@ final class DataTransformer
         }
     }
 
-    public function transform(): Data
+    public function transform(): ?Data
     {
         if (is_subclass_of($this->value, Data::class) || is_null($this->value)) {
             return $this->value;
