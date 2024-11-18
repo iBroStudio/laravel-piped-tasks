@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
  
+## [2.1.2](https://github.com/iBroStudio/laravel-piped-tasks/compare/v2.1.1...HEAD) (2024-11-18)
+### Bug Fixes
+* add refresh model in getProcess ([0e608d](https://github.com/iBroStudio/laravel-piped-tasks/commit/0e608d69d4851f8182158fd0f36dc479b08c394d))
+
+---
+
 ## [2.1.1](https://github.com/iBroStudio/laravel-piped-tasks/compare/v2.1.0...HEAD) (2024-11-18)
 ### Bug Fixes
 * typo in process stub ([c96cd0](https://github.com/iBroStudio/laravel-piped-tasks/commit/c96cd0f01509298ab7d93502d2f3925e41695119))
