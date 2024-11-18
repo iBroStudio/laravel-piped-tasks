@@ -209,7 +209,7 @@ final class RebillOrderPayload extends PayloadAbstract implements OrderPayload
 
 Generate your tasks with this command:
 ```bash
-php artisan make:piped-process MakePaymentTask
+php artisan make:piped-task MakePaymentTask
 ```
 
 Name your process like this : **\<Action>\<Domain>Task**
