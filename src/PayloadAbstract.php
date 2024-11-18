@@ -28,6 +28,10 @@ abstract class PayloadAbstract implements Arrayable, Payload
 
     public function getProcess(): Process|ProcessContract|ProcessModelContract
     {
+        if (! $this->process instanceof ProcessContract) {
+            return $this->process->refresh();
+        }
+
         return $this->process;
     }
 
