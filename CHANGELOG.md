@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
  
+## [2.2.3](https://github.com/iBroStudio/laravel-piped-tasks/compare/v2.2.2...HEAD) (2024-11-18)
+### Bug Fixes
+* set transformer value type to mixed ([adffef](https://github.com/iBroStudio/laravel-piped-tasks/commit/adffefa78804acd298dcc0aced10567e744b5580))
+
+---
+
 ## [2.2.2](https://github.com/iBroStudio/laravel-piped-tasks/compare/v2.2.1...HEAD) (2024-11-18)
 ### Bug Fixes
 * transform return can be null ([72bae5](https://github.com/iBroStudio/laravel-piped-tasks/commit/72bae5693bbbc4ca00a72c64abac737271ab49ec))
