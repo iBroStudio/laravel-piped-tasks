@@ -5,14 +5,16 @@ namespace IBroStudio\PipedTasks\Actions;
 use IBroStudio\PipedTasks\Contracts\Payload;
 use IBroStudio\PipedTasks\Enums\ProcessStatesEnum;
 use IBroStudio\PipedTasks\Models\Process;
-use Spatie\QueueableAction\QueueableAction;
+use Lorisleiva\Actions\Concerns\AsAction;
 
-final class PauseProcessAction
+final class PauseProcess
 {
-    use QueueableAction;
+    use AsAction;
 
-    public function execute(Process $process, Payload $payload)
-    {
+    public function handle(
+        Process $process,
+        Payload $payload
+    ): void {
         $process->update([
             'payload' => serialize($payload),
             'state' => ProcessStatesEnum::WAITING,

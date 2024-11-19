@@ -1,20 +1,18 @@
 <?php
 
-use IBroStudio\PipedTasks\Actions\UpdateProcessStateAction;
 use IBroStudio\PipedTasks\Contracts\Payload;
 use IBroStudio\PipedTasks\Enums\ProcessStatesEnum;
 use IBroStudio\PipedTasks\Models\Process;
 use IBroStudio\PipedTasks\Models\Task;
+use IBroStudio\TestSupport\Actions\RunFakeActionLongName;
 use IBroStudio\TestSupport\Processes\LongFakeNameProcess;
 use IBroStudio\TestSupport\Processes\MultipleProcess;
-use IBroStudio\TestSupport\Processes\Tasks\LongFakeActionTask;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Queue;
 use MichaelRubel\EnhancedPipeline\Events\PipeExecutionFinished;
 use MichaelRubel\EnhancedPipeline\Events\PipeExecutionStarted;
 use MichaelRubel\EnhancedPipeline\Events\PipelineFinished;
 use MichaelRubel\EnhancedPipeline\Events\PipelineStarted;
-use Spatie\QueueableAction\Testing\QueueableActionFake;
 
 it('can run an eloquent process', function () {
     $resultPayload = LongFakeNameProcess::process();
@@ -37,13 +35,11 @@ it('runs eloquent process with events', function () {
     Event::assertDispatched(PipelineFinished::class);
 
     Event::assertDispatched(PipeExecutionStarted::class, function (PipeExecutionStarted $event) {
-        return $event->pipe === LongFakeActionTask::class;
+        return $event->pipe === RunFakeActionLongName::class;
     });
     Event::assertDispatched(PipeExecutionFinished::class, function (PipeExecutionFinished $event) {
-        return $event->pipe instanceof LongFakeActionTask;
+        return $event->pipe instanceof RunFakeActionLongName;
     });
-
-    QueueableActionFake::assertPushed(UpdateProcessStateAction::class);
 });
 
 it('can execute a process within a process', function () {

@@ -4,12 +4,13 @@ namespace IBroStudio\PipedTasks;
 
 use Closure;
 use IBroStudio\PipedTasks\Actions\PauseProcessAction;
+use IBroStudio\PipedTasks\Actions\RunProcess;
 use IBroStudio\PipedTasks\Actions\UpdateProcessStateAction;
 use IBroStudio\PipedTasks\Actions\UpdateTaskStateAction;
 use IBroStudio\PipedTasks\Concerns\HasActions;
-use IBroStudio\PipedTasks\Contracts\ProcessModelContract;
 use IBroStudio\PipedTasks\Enums\ProcessStatesEnum;
 use IBroStudio\PipedTasks\Events\PipeExecutionPaused;
+use IBroStudio\PipedTasks\Exceptions\PauseProcessException;
 use IBroStudio\PipedTasks\Models\Process;
 use IBroStudio\PipedTasks\Tasks\ProcessAsTask;
 use Illuminate\Container\Container as ContainerConcrete;
@@ -24,6 +25,8 @@ use Throwable;
 class ProcessPipeline extends Pipeline
 {
     use HasActions;
+
+    protected $method = 'asTask';
 
     public function __construct(
         protected ProcessAsTask $processAsTask,
@@ -47,7 +50,6 @@ class ProcessPipeline extends Pipeline
     public function then(Closure $destination)
     {
         try {
-
             $this->updateProcessAction(ProcessStatesEnum::STARTED);
 
             $this->fireEvent(PipelineStarted::class,
@@ -89,7 +91,7 @@ class ProcessPipeline extends Pipeline
             }
 
             return $result;
-        } catch (PauseProcess $e) {
+        } catch (PauseProcessException $e) {
             $this->commitTransaction();
 
             return $this->passable;
@@ -108,7 +110,6 @@ class ProcessPipeline extends Pipeline
     {
         return function ($stack, $pipe) {
             return function ($passable) use ($stack, $pipe) {
-
                 $this->updateTaskAction($pipe, ProcessStatesEnum::STARTED);
 
                 $this->fireEvent(PipeExecutionStarted::class, $pipe, $passable);
@@ -141,12 +142,12 @@ class ProcessPipeline extends Pipeline
                 }
 
                 $carry = match (true) {
-                    is_a($pipe, Process::class) => $this->processAsTask->handle($pipe, $passable, $stack),
+                    is_a($pipe, Process::class) => RunProcess::make()->asTask($pipe, $passable, $stack),
                     method_exists($pipe, $this->method) => $pipe->{$this->method}(...$parameters),
                     default => $pipe(...$parameters),
                 };
 
-                if ($carry instanceof PauseProcess) {
+                if ($carry instanceof PauseProcessException) {
 
                     if (! in_array($passable->getProcess()->state, [ProcessStatesEnum::COMPLETED, ProcessStatesEnum::WAITING])) {
                         $this->updateTaskAction(get_class($pipe), ProcessStatesEnum::WAITING);

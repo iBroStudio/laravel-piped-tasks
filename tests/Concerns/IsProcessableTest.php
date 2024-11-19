@@ -47,11 +47,9 @@ it('allows processable to call process', function () {
 
 it('allows processable class to call statically process', function () {
     $resultPayload = ProcessableFakeModel::callProcess(ResumableFakeProcess::class);
-
     // @phpstan-ignore-next-line
-    ResumableFakeProcess::resume($resultPayload->getProcess()->id);
-
-    $process = ResumableFakeProcess::first();
+    $resumePayload = ResumableFakeProcess::resume($resultPayload->getProcess()->id);
+    $process = $resumePayload->getProcess();
 
     expect($process->processable)->toBeInstanceOf(ProcessableFakeModel::class)
         ->and($process->processable->id)->toBe(1)
@@ -70,4 +68,3 @@ it('allows processable to call simple process', function () {
     Event::assertDispatched(PipelineStarted::class);
     Event::assertDispatched(PipelineFinished::class);
 });
-// anime3-1squishier-9Eke-Bey4-whiff3-0fragility-mason-Confident

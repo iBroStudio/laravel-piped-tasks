@@ -1,18 +1,16 @@
 <?php
 
-use IBroStudio\PipedTasks\Actions\RunProcessAction;
-use IBroStudio\PipedTasks\Actions\UpdateProcessStateAction;
-use IBroStudio\PipedTasks\Actions\UpdateTaskStateAction;
+use IBroStudio\PipedTasks\Actions\RunProcess;
 use IBroStudio\PipedTasks\Contracts\Payload;
 use IBroStudio\PipedTasks\Enums\ProcessStatesEnum;
 use IBroStudio\PipedTasks\Events\PipeExecutionPaused;
 use IBroStudio\PipedTasks\Models\Process;
 use IBroStudio\PipedTasks\Models\Task;
+use IBroStudio\TestSupport\Actions\RunFakeActionResumableProcess;
+use IBroStudio\TestSupport\Actions\RunFakeActionResumableProcess2;
 use IBroStudio\TestSupport\Models\FakeModel;
 use IBroStudio\TestSupport\Processes\ResumableFakeProcess;
 use IBroStudio\TestSupport\Processes\ResumableMultipleProcess;
-use IBroStudio\TestSupport\Processes\Tasks\ResumableFakeTask;
-use IBroStudio\TestSupport\Processes\Tasks\ResumableFakeTask2;
 use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Queue;
@@ -20,7 +18,6 @@ use MichaelRubel\EnhancedPipeline\Events\PipeExecutionFinished;
 use MichaelRubel\EnhancedPipeline\Events\PipeExecutionStarted;
 use MichaelRubel\EnhancedPipeline\Events\PipelineFinished;
 use MichaelRubel\EnhancedPipeline\Events\PipelineStarted;
-use Spatie\QueueableAction\Testing\QueueableActionFake;
 
 use function Pest\Laravel\get;
 
@@ -45,25 +42,22 @@ it('can emit events with paused process', function () {
     Event::assertNotDispatched(PipelineFinished::class);
 
     Event::assertDispatched(PipeExecutionStarted::class, function (PipeExecutionStarted $event) {
-        return $event->pipe === ResumableFakeTask::class;
+        return $event->pipe === RunFakeActionResumableProcess::class;
     });
     Event::assertDispatched(PipeExecutionPaused::class, function (PipeExecutionPaused $event) {
-        return $event->pipe instanceof ResumableFakeTask;
+        return $event->pipe instanceof RunFakeActionResumableProcess;
     });
     Event::assertNotDispatched(PipeExecutionFinished::class);
 
     Event::assertNotDispatched(PipeExecutionStarted::class, function (PipeExecutionStarted $event) {
-        return $event->pipe === ResumableFakeTask2::class;
+        return $event->pipe === RunFakeActionResumableProcess2::class;
     });
     Event::assertNotDispatched(PipeExecutionPaused::class, function (PipeExecutionPaused $event) {
-        return $event->pipe instanceof ResumableFakeTask2;
+        return $event->pipe instanceof RunFakeActionResumableProcess2;
     });
     Event::assertNotDispatched(PipeExecutionFinished::class, function (PipeExecutionFinished $event) {
-        return $event->pipe instanceof ResumableFakeTask2;
+        return $event->pipe instanceof RunFakeActionResumableProcess2;
     });
-
-    QueueableActionFake::assertPushed(UpdateProcessStateAction::class);
-    QueueableActionFake::assertPushed(UpdateTaskStateAction::class);
 });
 
 it('can resume a process', function () {
@@ -72,7 +66,7 @@ it('can resume a process', function () {
     $process = ResumableFakeProcess::makeProcess($payload);
     $process->update(['state' => ProcessStatesEnum::WAITING]);
 
-    $task = $process->taskModel(ResumableFakeTask::class);
+    $task = $process->taskModel(RunFakeActionResumableProcess::class);
     $task->update(['state' => ProcessStatesEnum::WAITING]);
 
     ResumableFakeProcess::resume($process->id);
@@ -81,17 +75,17 @@ it('can resume a process', function () {
     Event::assertDispatched(PipelineFinished::class);
 
     Event::assertNotDispatched(PipeExecutionStarted::class, function (PipeExecutionStarted $event) {
-        return $event->pipe === ResumableFakeTask::class;
+        return $event->pipe === RunFakeActionResumableProcess::class;
     });
     Event::assertNotDispatched(PipeExecutionFinished::class, function (PipeExecutionFinished $event) {
-        return $event->pipe instanceof ResumableFakeTask;
+        return $event->pipe instanceof RunFakeActionResumableProcess;
     });
 
     Event::assertDispatched(PipeExecutionStarted::class, function (PipeExecutionStarted $event) {
-        return $event->pipe === ResumableFakeTask2::class;
+        return $event->pipe === RunFakeActionResumableProcess2::class;
     });
     Event::assertDispatched(PipeExecutionFinished::class, function (PipeExecutionFinished $event) {
-        return $event->pipe instanceof ResumableFakeTask2;
+        return $event->pipe instanceof RunFakeActionResumableProcess2;
     });
 
     $process = ResumableFakeProcess::first();
@@ -122,7 +116,7 @@ it('can run process via queue', function () {
         ResumableFakeProcess::process(async: true)
     )->toBeInstanceOf(PendingDispatch::class);
 
-    QueueableActionFake::assertPushed(RunProcessAction::class);
+    RunProcess::assertPushed();
 });
 
 it('can resume a process from a signed url', function () {

@@ -4,12 +4,12 @@ namespace IBroStudio\PipedTasks\Tasks;
 
 use Closure;
 use IBroStudio\PipedTasks\Actions\PauseProcessAction;
-use IBroStudio\PipedTasks\Actions\RunProcessAction;
+use IBroStudio\PipedTasks\Actions\RunProcess;
 use IBroStudio\PipedTasks\Actions\UpdateProcessStateAction;
 use IBroStudio\PipedTasks\Actions\UpdateTaskStateAction;
 use IBroStudio\PipedTasks\Enums\ProcessStatesEnum;
+use IBroStudio\PipedTasks\Exceptions\PauseProcessException;
 use IBroStudio\PipedTasks\Models\Process;
-use IBroStudio\PipedTasks\PauseProcess;
 use IBroStudio\PipedTasks\PayloadAbstract;
 
 /**
@@ -20,7 +20,7 @@ class ProcessAsTask
     public function __construct(
         protected UpdateProcessStateAction $updateEloquentProcessStateAction,
         protected UpdateTaskStateAction $updateEloquentTaskStateAction,
-        protected RunProcessAction $runProcessAction,
+        protected RunProcess $runProcessAction,
         protected PauseProcessAction $pauseProcessAction,
     ) {}
 
@@ -52,6 +52,6 @@ class ProcessAsTask
                 payload: $payload,
             );
 
-        return new PauseProcess;
+        return new PauseProcessException;
     }
 }

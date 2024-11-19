@@ -23,6 +23,7 @@
         "ibrostudio/laravel-prompts-path-select": "^1.0",
         "illuminate/contracts": "^11.0",
         "laravel/prompts": "^0.3.0",
+        "lorisleiva/laravel-actions": "^2.8",
         "michael-rubel/laravel-enhanced-pipeline": "^4.0",
         "spatie/laravel-activitylog": "^4.8",
         "spatie/laravel-data": "^4.10",

@@ -3,7 +3,7 @@
 namespace IBroStudio\PipedTasks\Concerns;
 
 use Closure;
-use IBroStudio\PipedTasks\Actions\RunProcessAction;
+use IBroStudio\PipedTasks\Actions\RunProcess;
 use IBroStudio\PipedTasks\Contracts\Payload;
 use IBroStudio\PipedTasks\Contracts\Processable;
 use IBroStudio\PipedTasks\ProcessPipeline;
@@ -46,15 +46,16 @@ trait IsProcess
         );
 
         if ($async) {
-            return (new RunProcessAction)
-                ->onQueue()
-                ->execute(
-                    process: $process,
-                    payload: $payload,
-                );
+            return RunProcess::dispatch(
+                process: $process,
+                payload: $payload,
+            );
         }
 
-        return $process->run($payload);
+        return RunProcess::run(
+            process: $process,
+            payload: $payload,
+        );
     }
 
     public static function makeProcess(Payload $payload, ?Processable $processable = null): static

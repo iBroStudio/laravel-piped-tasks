@@ -2,14 +2,12 @@
 
 namespace IBroStudio\PipedTasks\Concerns;
 
-use IBroStudio\PipedTasks\Actions\LogProcessAction;
-use IBroStudio\PipedTasks\Actions\RunProcessAction;
-use IBroStudio\PipedTasks\Actions\UpdateTaskStateAction;
+use IBroStudio\PipedTasks\Actions\LogProcess;
+use IBroStudio\PipedTasks\Actions\RunProcess;
+use IBroStudio\PipedTasks\Actions\UpdateTaskState;
 use IBroStudio\PipedTasks\Contracts\Payload;
 use IBroStudio\PipedTasks\Enums\ProcessStatesEnum;
-use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Support\Facades\URL;
-use Spatie\QueueableAction\ActionJob;
 
 trait CanBeResumed
 {
@@ -21,7 +19,7 @@ trait CanBeResumed
         ]);
     }
 
-    public static function resume(int $process_id, ?Payload $payload = null): ?PendingDispatch
+    public static function resume(int $process_id, ?Payload $payload = null): Payload
     {
         $process = self::whereId($process_id)
             ->whereState(ProcessStatesEnum::WAITING)
@@ -34,14 +32,20 @@ trait CanBeResumed
 
         $process->payload->setProcess($process);
 
-        return (new UpdateTaskStateAction)
-            ->onQueue()
-            ->execute(
-                task: $waitingTask = $process->waitingTask(),
-                state: ProcessStatesEnum::RESUME
-            )->chain([
-                new ActionJob(LogProcessAction::class, [$process, $process->payload, $waitingTask]),
-                new ActionJob(RunProcessAction::class, [$process, $process->payload]),
-            ]);
+        UpdateTaskState::run(
+            task: $waitingTask = $process->waitingTask(),
+            state: ProcessStatesEnum::RESUME
+        );
+
+        LogProcess::dispatch(
+            process: $process,
+            payload: $process->payload,
+            task: $waitingTask
+        );
+
+        return RunProcess::run(
+            process: $process,
+            payload: $process->payload,
+        );
     }
 }

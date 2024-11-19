@@ -396,10 +396,7 @@ Sometimes an external task needs to be performed to complete a process. You can 
 
 namespace App\Processes\Tasks;
 
-use App\Models\Order;
-use App\Processes\Payloads\Contracts\MyProcessPayload;
-use Closure;
-use IBroStudio\PipedTasks\PauseProcess;
+use App\Models\Order;use App\Processes\Payloads\Contracts\MyProcessPayload;use Closure;use IBroStudio\PipedTasks\Exceptions\PauseProcessException;
 
 class CallExternalTask
 {
@@ -408,7 +405,7 @@ class CallExternalTask
         // Here call your external service allowing to include a webhook url  
         // Webhook url to use to resume the process can be retrieved with $payload->getProcess()->resumeUrl()
 
-        return new PauseProcess;
+        return new PauseProcessException;
     }
 }
 ```

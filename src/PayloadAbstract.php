@@ -27,7 +27,7 @@ abstract class PayloadAbstract implements Arrayable, Payload
         collect(
             (new \ReflectionClass($this))->getProperties()
         )->each(function (ReflectionProperty $property) {
-            if($transformer = $property->getAttributes(DataTransformer::class)) {
+            if ($transformer = $property->getAttributes(DataTransformer::class)) {
                 $this->{$property->getName()} = (new DataTransformer(
                     class: $transformer[0]->getArguments()[0],
                     value: $this->{$property->getName()}))->transform();

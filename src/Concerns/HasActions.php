@@ -2,11 +2,11 @@
 
 namespace IBroStudio\PipedTasks\Concerns;
 
-use IBroStudio\PipedTasks\Actions\LogProcessAction;
-use IBroStudio\PipedTasks\Actions\UpdateTaskStateAction;
+use IBroStudio\PipedTasks\Actions\LogProcess;
+use IBroStudio\PipedTasks\Actions\PauseProcess;
+use IBroStudio\PipedTasks\Actions\UpdateProcessState;
+use IBroStudio\PipedTasks\Actions\UpdateTaskState;
 use IBroStudio\PipedTasks\Enums\ProcessStatesEnum;
-use Illuminate\Foundation\Bus\PendingDispatch;
-use Spatie\QueueableAction\ActionJob;
 
 trait HasActions
 {
@@ -19,49 +19,48 @@ trait HasActions
         return $this;
     }
 
-    public function updateProcessAction(ProcessStatesEnum $state): ?PendingDispatch
+    public function updateProcessAction(ProcessStatesEnum $state): void
     {
-        if (! $this->isEloquentProcess
-            || $this->passable->getProcess()->refresh()->state === ProcessStatesEnum::RESUME
-        ) {
-            return null;
-        }
+        $process = $this->passable->getProcess();
 
-        return $this->updateEloquentProcessStateAction
-            ->onQueue()
-            ->execute(
-                process: $this->passable->getProcess(),
+        if ($this->isEloquentProcess
+            && $process->state !== ProcessStatesEnum::RESUME
+        ) {
+            UpdateProcessState::run(
+                process: $process,
                 state: $state
-            )->chain([
-                new ActionJob(LogProcessAction::class, [$this->passable->getProcess(), $this->passable]),
-            ]);
+            );
+
+            LogProcess::dispatch(
+                process: $process,
+                payload: $this->passable
+            );
+        }
     }
 
-    public function updateTaskAction(string $taskClass, ProcessStatesEnum $state): ?PendingDispatch
+    public function updateTaskAction(string $taskClass, ProcessStatesEnum $state): void
     {
-        if (! $this->isEloquentProcess) {
-            return null;
-        }
+        if ($this->isEloquentProcess) {
+            $process = $this->passable->getProcess();
+            $currentTask = $process->taskModel($taskClass);
 
-        $currentTask = $this->passable->getProcess()->taskModel($taskClass);
+            if ($state === ProcessStatesEnum::WAITING) {
+                PauseProcess::run(
+                    process: $process,
+                    payload: $this->passable
+                );
+            }
 
-        if ($state === ProcessStatesEnum::WAITING) {
-            return $this->pauseProcessAction
-                ->onQueue()
-                ->execute($this->passable->getProcess(), $this->passable)
-                ->chain([
-                    new ActionJob(UpdateTaskStateAction::class, [$currentTask, $state]),
-                    new ActionJob(LogProcessAction::class, [$this->passable->getProcess(), $this->passable, $currentTask]),
-                ]);
-        }
-
-        return $this->updateEloquentTaskStateAction
-            ->onQueue()
-            ->execute(
+            UpdateTaskState::run(
                 task: $currentTask,
                 state: $state
-            )->chain([
-                new ActionJob(LogProcessAction::class, [$this->passable->getProcess(), $this->passable, $currentTask]),
-            ]);
+            );
+
+            LogProcess::dispatch(
+                process: $process,
+                payload: $this->passable,
+                task: $currentTask
+            );
+        }
     }
 }

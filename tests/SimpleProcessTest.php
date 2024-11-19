@@ -1,10 +1,10 @@
 <?php
 
-use IBroStudio\PipedTasks\Actions\RunProcessAction;
+use IBroStudio\PipedTasks\Actions\RunProcess;
 use IBroStudio\PipedTasks\Contracts\Payload;
+use IBroStudio\TestSupport\Actions\RunFakeAction;
+use IBroStudio\TestSupport\Actions\RunFakeAction2;
 use IBroStudio\TestSupport\Processes\FakeProcess;
-use IBroStudio\TestSupport\Processes\Tasks\FakeTask;
-use IBroStudio\TestSupport\Processes\Tasks\FakeTask2;
 use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Event;
@@ -12,7 +12,6 @@ use MichaelRubel\EnhancedPipeline\Events\PipeExecutionFinished;
 use MichaelRubel\EnhancedPipeline\Events\PipeExecutionStarted;
 use MichaelRubel\EnhancedPipeline\Events\PipelineFinished;
 use MichaelRubel\EnhancedPipeline\Events\PipelineStarted;
-use Spatie\QueueableAction\Testing\QueueableActionFake;
 
 it('can run a simple process', function () {
     $process = FakeProcess::process();
@@ -35,10 +34,10 @@ it('can run a task', function () {
     FakeProcess::process();
 
     Event::assertDispatched(PipeExecutionStarted::class, function (PipeExecutionStarted $event) {
-        return $event->pipe === FakeTask::class;
+        return $event->pipe === RunFakeAction::class;
     });
     Event::assertDispatched(PipeExecutionFinished::class, function (PipeExecutionFinished $event) {
-        return $event->pipe instanceof FakeTask;
+        return $event->pipe instanceof RunFakeAction;
     });
 });
 
@@ -48,17 +47,17 @@ it('can run an injected task added from config', function () {
         'tasks' => [
             FakeProcess::class => [
                 'prepend' => [],
-                'append' => [FakeTask2::class],
+                'append' => [RunFakeAction2::class],
             ],
         ],
     ]);
     FakeProcess::process();
 
     Event::assertDispatched(PipeExecutionStarted::class, function (PipeExecutionStarted $event) {
-        return $event->pipe === FakeTask2::class;
+        return $event->pipe === RunFakeAction2::class;
     });
     Event::assertDispatched(PipeExecutionFinished::class, function (PipeExecutionFinished $event) {
-        return $event->pipe instanceof FakeTask2;
+        return $event->pipe instanceof RunFakeAction2;
     });
 });
 
@@ -67,7 +66,7 @@ it('can run a pre-added injected task from config', function () {
     Config::set('piped-tasks', [
         'tasks' => [
             FakeProcess::class => [
-                'prepend' => [FakeTask2::class],
+                'prepend' => [RunFakeAction2::class],
                 'append' => [],
             ],
         ],
@@ -75,10 +74,10 @@ it('can run a pre-added injected task from config', function () {
     FakeProcess::process([]);
 
     Event::assertDispatched(PipeExecutionStarted::class, function (PipeExecutionStarted $event) {
-        return $event->pipe === FakeTask2::class;
+        return $event->pipe === RunFakeAction2::class;
     });
     Event::assertDispatched(PipeExecutionFinished::class, function (PipeExecutionFinished $event) {
-        return $event->pipe instanceof FakeTask2;
+        return $event->pipe instanceof RunFakeAction2;
     });
 });
 
@@ -95,10 +94,10 @@ it('can handle the payload of a process', function () {
     Event::assertDispatched(PipelineStarted::class);
     Event::assertDispatched(PipelineFinished::class);
     Event::assertDispatched(PipeExecutionStarted::class, function (PipeExecutionStarted $event) {
-        return $event->pipe === FakeTask::class;
+        return $event->pipe === RunFakeAction::class;
     });
     Event::assertDispatched(PipeExecutionFinished::class, function (PipeExecutionFinished $event) {
-        return $event->pipe instanceof FakeTask;
+        return $event->pipe instanceof RunFakeAction;
     });
 });
 
@@ -117,5 +116,5 @@ it('can run process async via queue', function () {
         FakeProcess::process(async: true)
     )->toBeInstanceOf(PendingDispatch::class);
 
-    QueueableActionFake::assertPushed(RunProcessAction::class);
+    RunProcess::assertPushed();
 });
