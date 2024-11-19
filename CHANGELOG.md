@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
  
+## [2.3.0](https://github.com/iBroStudio/laravel-piped-tasks/compare/v2.2.3...HEAD) (2024-11-19)
+### Features
+* switch to Laravel Actions ([009798](https://github.com/iBroStudio/laravel-piped-tasks/commit/009798f0fa5b250650d9fc6da5b7e45dc5ecdcb1))
+
+---
+
 ## [2.2.3](https://github.com/iBroStudio/laravel-piped-tasks/compare/v2.2.2...HEAD) (2024-11-18)
 ### Bug Fixes
 * set transformer value type to mixed ([adffef](https://github.com/iBroStudio/laravel-piped-tasks/commit/adffefa78804acd298dcc0aced10567e744b5580))
