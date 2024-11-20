@@ -40,6 +40,8 @@ class Process extends Model implements ProcessModelContract
         'class',
         'payload',
         'state',
+        'processable_type',
+        'processable_id',
         'log_batch_uuid',
         'parent_process_id',
         'ended_at',

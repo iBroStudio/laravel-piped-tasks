@@ -12,7 +12,6 @@ use IBroStudio\PipedTasks\Enums\ProcessStatesEnum;
 use IBroStudio\PipedTasks\Events\PipeExecutionPaused;
 use IBroStudio\PipedTasks\Exceptions\PauseProcessException;
 use IBroStudio\PipedTasks\Models\Process;
-use IBroStudio\PipedTasks\Tasks\ProcessAsTask;
 use Illuminate\Container\Container as ContainerConcrete;
 use Illuminate\Contracts\Container\Container;
 use MichaelRubel\EnhancedPipeline\Events\PipeExecutionFinished;
@@ -27,25 +26,6 @@ class ProcessPipeline extends Pipeline
     use HasActions;
 
     protected $method = 'asTask';
-
-    public function __construct(
-        protected ProcessAsTask $processAsTask,
-        protected UpdateProcessStateAction $updateEloquentProcessStateAction,
-        protected UpdateTaskStateAction $updateEloquentTaskStateAction,
-        protected PauseProcessAction $pauseProcessAction,
-        ?Container $container = null
-    ) {
-        parent::__construct($container);
-    }
-
-    public static function make(?Container $container = null): ProcessPipeline
-    {
-        if (! $container) {
-            $container = ContainerConcrete::getInstance();
-        }
-
-        return $container->make(static::class);
-    }
 
     public function then(Closure $destination)
     {
