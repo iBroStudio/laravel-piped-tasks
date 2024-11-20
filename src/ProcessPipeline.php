@@ -78,6 +78,8 @@ class ProcessPipeline extends Pipeline
         } catch (Throwable $e) {
             $this->rollbackTransaction();
 
+            $this->updateProcessAction(ProcessStatesEnum::FAILED);
+
             if ($this->onFailure) {
                 return ($this->onFailure)($this->passable, $e);
             }

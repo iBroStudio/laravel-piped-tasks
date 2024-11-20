@@ -19,7 +19,6 @@ return new class extends Migration
             $table->unsignedBigInteger('parent_process_id')->nullable();
             $table->string('log_batch_uuid')->nullable();
             $table->timestamps();
-            $table->timestamp('ended_at')->nullable();
             $table->foreign('parent_process_id')->references('id')->on('processes');
         });
 
@@ -28,8 +27,6 @@ return new class extends Migration
             $table->foreignIdFor(Process::class);
             $table->string('class');
             $table->string('state')->default(ProcessStatesEnum::PENDING);
-            $table->timestamp('started_at')->nullable();
-            $table->timestamp('ended_at')->nullable();
         });
     }
 };

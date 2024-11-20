@@ -23,8 +23,6 @@ class Task extends Model
         'process_id',
         'class',
         'state',
-        'started_at',
-        'ended_at',
     ];
 
     public function process(): BelongsTo
@@ -36,8 +34,6 @@ class Task extends Model
     {
         return [
             'state' => ProcessStatesEnum::class,
-            'started_at' => 'timestamp',
-            'ended_at' => 'timestamp',
         ];
     }
 }

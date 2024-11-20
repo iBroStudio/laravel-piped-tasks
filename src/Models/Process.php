@@ -36,6 +36,8 @@ class Process extends Model implements ProcessModelContract
 
     protected $table = 'processes';
 
+    public $timestamps = false;
+
     protected $fillable = [
         'class',
         'payload',
@@ -44,15 +46,12 @@ class Process extends Model implements ProcessModelContract
         'processable_id',
         'log_batch_uuid',
         'parent_process_id',
-        'ended_at',
     ];
 
     protected function casts(): array
     {
         return [
             'state' => ProcessStatesEnum::class,
-            'started_at' => 'timestamp',
-            'ended_at' => 'timestamp',
         ];
     }
 
