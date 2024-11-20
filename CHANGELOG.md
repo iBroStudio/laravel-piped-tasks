@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
  
+## [2.3.2](https://github.com/iBroStudio/laravel-piped-tasks/compare/v2.3.1...HEAD) (2024-11-20)
+### Bug Fixes
+* models properties clean up ([3dcc0b](https://github.com/iBroStudio/laravel-piped-tasks/commit/3dcc0beb3b7e01c704eed5085ad37506190e99f1))
+
+---
+
 ## [2.3.1](https://github.com/iBroStudio/laravel-piped-tasks/compare/v2.3.0...HEAD) (2024-11-20)
 ### Bug Fixes
 * clean up and tweaks ([de9e7a](https://github.com/iBroStudio/laravel-piped-tasks/commit/de9e7a590d5efd5de7f94bca7fb692a2ac37690d))
