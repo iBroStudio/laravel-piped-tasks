@@ -17,7 +17,7 @@ it('can run a simple process', function () {
     $process = FakeProcess::process();
 
     expect($process)->toBeInstanceOf(Payload::class)
-        ->and($process->getProcess())->toBeInstanceOf(FakeProcess::class);
+        ->and($process->process)->toBeInstanceOf(FakeProcess::class);
 });
 
 it('can run a simple process with events', function () {

@@ -14,14 +14,14 @@ it('can instantiate payload', function () {
 
 it('can set process', function () {
     $payload = new FakePayload;
-    $payload->setProcess(new FakeProcess);
+    $payload->process = new FakeProcess;
 
-    expect($payload->getProcess())->toBeInstanceOf(FakeProcess::class);
+    expect($payload->process)->toBeInstanceOf(FakeProcess::class);
 });
 
 it('can convert payload to collection', function () {
     $payload = new FakePayload;
-    $payload->setProcess(new FakeProcess);
+    $payload->process = new FakeProcess;
 
     expect($payload->toCollection())->toBeInstanceOf(Collection::class)
         ->and($payload->toCollection()->has('process'))->toBeFalse();
@@ -39,5 +39,5 @@ it('can transform array to dto', function () {
         'description' => fake()->text,
     ]);
 
-    expect($payload->getDto())->toBeInstanceOf(FakeData::class);
+    expect($payload->dto)->toBeInstanceOf(FakeData::class);
 });

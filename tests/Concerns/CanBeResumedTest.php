@@ -25,7 +25,7 @@ it('can pause a process', function () {
     $resultPayload = ResumableFakeProcess::process();
 
     expect($resultPayload)->toBeInstanceOf(Payload::class)
-        ->and($resultPayload->getProcess())->toBeInstanceOf(ResumableFakeProcess::class);
+        ->and($resultPayload->process)->toBeInstanceOf(ResumableFakeProcess::class);
 
     $process = ResumableFakeProcess::first();
 
@@ -100,13 +100,13 @@ it('can resume a process', function () {
 it('can retrieve changed payload when resume process', function () {
     $resultPayload = ResumableFakeProcess::process();
     // @phpstan-ignore-next-line
-    ResumableFakeProcess::resume($resultPayload->getProcess()->id);
+    ResumableFakeProcess::resume($resultPayload->process->id);
     $payload = ResumableFakeProcess::first()->payload;
 
     // @phpstan-ignore-next-line
-    expect($payload->getProperty1())->toBe('changed')
+    expect($payload->property1)->toBe('changed')
         // @phpstan-ignore-next-line
-        ->and($payload->getProperty2())->toBeInstanceOf(FakeModel::class);
+        ->and($payload->property2)->toBeInstanceOf(FakeModel::class);
 });
 
 it('can run process via queue', function () {
@@ -123,10 +123,7 @@ it('can resume a process from a signed url', function () {
 
     $resultPayload = ResumableFakeProcess::process();
 
-    get(
-        $resultPayload->getProcess()
-            ->resumeUrl()
-    )->assertSuccessful();
+    get($resultPayload->process->resumeUrl())->assertSuccessful();
 
     $process = ResumableFakeProcess::first();
 

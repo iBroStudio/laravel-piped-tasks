@@ -21,7 +21,7 @@ trait HasActions
 
     public function updateProcessAction(ProcessStatesEnum $state): void
     {
-        $process = $this->passable->getProcess();
+        $process = $this->passable->process;
 
         if ($this->isEloquentProcess
             && $process->state !== ProcessStatesEnum::RESUME
@@ -41,7 +41,7 @@ trait HasActions
     public function updateTaskAction(string $taskClass, ProcessStatesEnum $state): void
     {
         if ($this->isEloquentProcess) {
-            $process = $this->passable->getProcess();
+            $process = $this->passable->process;
             $currentTask = $process->taskModel($taskClass);
 
             if ($state === ProcessStatesEnum::WAITING) {

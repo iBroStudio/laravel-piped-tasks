@@ -36,7 +36,7 @@ it('allows processable to call process', function () {
     $resultPayload = $processable->process(LongFakeNameProcess::class);
 
     expect($resultPayload)->toBeInstanceOf(Payload::class)
-        ->and($resultPayload->getProcess())->toBeInstanceOf(LongFakeNameProcess::class);
+        ->and($resultPayload->process)->toBeInstanceOf(LongFakeNameProcess::class);
 
     $process = LongFakeNameProcess::first();
 
@@ -48,8 +48,8 @@ it('allows processable to call process', function () {
 it('allows processable class to call statically process', function () {
     $resultPayload = ProcessableFakeModel::callProcess(ResumableFakeProcess::class);
     // @phpstan-ignore-next-line
-    $resumePayload = ResumableFakeProcess::resume($resultPayload->getProcess()->id);
-    $process = $resumePayload->getProcess();
+    $resumePayload = ResumableFakeProcess::resume($resultPayload->process->id);
+    $process = $resumePayload->process;
 
     expect($process->processable)->toBeInstanceOf(ProcessableFakeModel::class)
         ->and($process->processable->id)->toBe(1)
@@ -63,7 +63,7 @@ it('allows processable to call simple process', function () {
     $resultPayload = $processable->process(FakeProcess::class);
 
     expect($resultPayload)->toBeInstanceOf(Payload::class)
-        ->and($resultPayload->getProcess())->toBeInstanceOf(FakeProcess::class);
+        ->and($resultPayload->process)->toBeInstanceOf(FakeProcess::class);
 
     Event::assertDispatched(PipelineStarted::class);
     Event::assertDispatched(PipelineFinished::class);

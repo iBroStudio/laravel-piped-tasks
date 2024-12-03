@@ -73,7 +73,7 @@ trait IsProcess
 
     public function run(Payload $payload): Payload
     {
-        $payload->setProcess($this);
+        $payload->process = $this;
 
         $pipeline = ProcessPipeline::make();
 

@@ -13,40 +13,26 @@ use Illuminate\Support\Collection;
 use ReflectionClass;
 use ReflectionProperty;
 
-/**
- * @property Process|ProcessContract|ProcessModelContract $process
- */
 abstract class PayloadAbstract implements Arrayable, Payload
 {
     use SerializesModels;
 
-    protected Process|ProcessContract|ProcessModelContract|null $process = null;
-
     public function __construct()
     {
         collect(
-            (new \ReflectionClass($this))->getProperties()
+            new \ReflectionClass($this)->getProperties()
         )->each(function (ReflectionProperty $property) {
             if ($transformer = $property->getAttributes(DataTransformer::class)) {
-                $this->{$property->getName()} = (new DataTransformer(
+                $this->{$property->getName()} = new DataTransformer(
                     class: $transformer[0]->getArguments()[0],
-                    value: $this->{$property->getName()}))->transform();
+                    value: $this->{$property->getName()})->transform();
             }
         });
     }
 
-    public function setProcess(Process|ProcessContract|ProcessModelContract $process): void
-    {
-        $this->process = $process;
-    }
-
-    public function getProcess(): Process|ProcessContract|ProcessModelContract
-    {
-        if (! $this->process instanceof ProcessContract) {
-            return $this->process->refresh();
-        }
-
-        return $this->process;
+    public Process|ProcessContract|ProcessModelContract $process {
+        get => $this->process instanceof ProcessContract ?
+            $this->process : $this->process->refresh();
     }
 
     public function toCollection(): Collection

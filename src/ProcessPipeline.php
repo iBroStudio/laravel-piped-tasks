@@ -3,16 +3,12 @@
 namespace IBroStudio\PipedTasks;
 
 use Closure;
-use IBroStudio\PipedTasks\Actions\PauseProcessAction;
 use IBroStudio\PipedTasks\Actions\RunProcess;
-use IBroStudio\PipedTasks\Actions\UpdateProcessStateAction;
-use IBroStudio\PipedTasks\Actions\UpdateTaskStateAction;
 use IBroStudio\PipedTasks\Concerns\HasActions;
 use IBroStudio\PipedTasks\Enums\ProcessStatesEnum;
 use IBroStudio\PipedTasks\Events\PipeExecutionPaused;
 use IBroStudio\PipedTasks\Exceptions\PauseProcessException;
 use IBroStudio\PipedTasks\Models\Process;
-use Illuminate\Container\Container as ContainerConcrete;
 use Illuminate\Contracts\Container\Container;
 use MichaelRubel\EnhancedPipeline\Events\PipeExecutionFinished;
 use MichaelRubel\EnhancedPipeline\Events\PipeExecutionStarted;
@@ -61,12 +57,12 @@ class ProcessPipeline extends Pipeline
                 $result,
             );
 
-            if (($process = $this->passable->getProcess()) instanceof Process
+            if (($process = $this->passable->process) instanceof Process
                 && $parent_process_id = $process->refresh()->parent_process_id
             ) {
                 $parentProcess = Process::find($parent_process_id);
                 $payload = $parentProcess->class::makePayload($this->passable->toCollection());
-                $payload->setProcess($parentProcess);
+                $payload->process = $parentProcess;
                 $parentProcess->class::resume($parentProcess->id, $payload);
             }
 
@@ -131,7 +127,7 @@ class ProcessPipeline extends Pipeline
 
                 if ($carry instanceof PauseProcessException) {
 
-                    if (! in_array($passable->getProcess()->state, [ProcessStatesEnum::COMPLETED, ProcessStatesEnum::WAITING])) {
+                    if (! in_array($passable->process->state, [ProcessStatesEnum::COMPLETED, ProcessStatesEnum::WAITING])) {
                         $this->updateTaskAction(get_class($pipe), ProcessStatesEnum::WAITING);
 
                         $this->fireEvent(PipeExecutionPaused::class, $pipe, $passable);

@@ -13,16 +13,15 @@ it('can run the log process action', function () {
     Queue::fake();
 
     $payload = LongFakeNameProcess::makePayload();
-    $process = LongFakeNameProcess::makeProcess($payload);
-    $payload->setProcess($process);
+    $payload->process = LongFakeNameProcess::makeProcess($payload);
 
     UpdateProcessState::run(
-        process: $process,
+        process: $payload->process,
         state: ProcessStatesEnum::COMPLETED
     );
 
     LogProcess::dispatch(
-        process: $process,
+        process: $payload->process,
         payload: $payload
     );
 
@@ -56,7 +55,7 @@ it('can log a resumed process event', function () {
     config(['piped-tasks.log_processes' => true]);
     $resultPayload = ResumableFakeProcess::process();
     // @phpstan-ignore-next-line
-    ResumableFakeProcess::resume($resultPayload->getProcess()->id);
+    ResumableFakeProcess::resume($resultPayload->process->id);
 
     $logs = Activity::inLog('personalized-name')->get();
 
@@ -82,7 +81,7 @@ it('can log payload properties', function () {
     config(['piped-tasks.log_processes' => true]);
     $resultPayload = ResumableFakeProcess::process();
     // @phpstan-ignore-next-line
-    ResumableFakeProcess::resume($resultPayload->getProcess()->id);
+    ResumableFakeProcess::resume($resultPayload->process->id);
 
     $logs = Activity::inLog('personalized-name')->get();
 

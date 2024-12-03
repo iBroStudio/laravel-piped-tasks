@@ -18,7 +18,7 @@ it('can run an eloquent process', function () {
     $resultPayload = LongFakeNameProcess::process();
 
     expect($resultPayload)->toBeInstanceOf(Payload::class)
-        ->and($resultPayload->getProcess())->toBeInstanceOf(LongFakeNameProcess::class);
+        ->and($resultPayload->process)->toBeInstanceOf(LongFakeNameProcess::class);
 
     $process = LongFakeNameProcess::first();
 

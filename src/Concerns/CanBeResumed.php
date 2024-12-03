@@ -30,7 +30,7 @@ trait CanBeResumed
             $process->refresh();
         }
 
-        $process->payload->setProcess($process);
+        $process->payload->process = $process;
 
         UpdateTaskState::run(
             task: $waitingTask = $process->waitingTask(),

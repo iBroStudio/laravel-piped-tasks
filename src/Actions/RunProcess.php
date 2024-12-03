@@ -25,7 +25,7 @@ final class RunProcess
 
     public function asTask(Process $process, PayloadAbstract $payload, Closure $next): mixed
     {
-        $parentProcess = $payload->getProcess();
+        $parentProcess = $payload->process;
 
         UpdateTaskState::run(
             task: $parentProcess->taskModel(get_class($process)),
