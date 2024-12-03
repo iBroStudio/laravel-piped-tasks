@@ -1,9 +1,11 @@
 <?php
 
+use IBroStudio\DataRepository\ValueObjects\Text;
 use IBroStudio\TestSupport\Data\FakeData;
 use IBroStudio\TestSupport\Processes\FakeProcess;
 use IBroStudio\TestSupport\Processes\Payloads\FakeDtoPayload;
 use IBroStudio\TestSupport\Processes\Payloads\FakePayload;
+use IBroStudio\TestSupport\Processes\Payloads\FakeValueObjectPayload;
 use Illuminate\Support\Collection;
 
 it('can instantiate payload', function () {
@@ -33,11 +35,17 @@ it('can convert payload to array', function () {
     expect($payload->toArray())->toBeArray();
 });
 
-it('can transform array to dto', function () {
+it('can transform property to dto', function () {
     $payload = new FakeDtoPayload([
         'name' => fake()->name,
         'description' => fake()->text,
     ]);
 
     expect($payload->dto)->toBeInstanceOf(FakeData::class);
+});
+
+it('can transform property to value object', function () {
+    $payload = new FakeValueObjectPayload(object: fake()->text);
+
+    expect($payload->object)->toBeInstanceOf(Text::class);
 });

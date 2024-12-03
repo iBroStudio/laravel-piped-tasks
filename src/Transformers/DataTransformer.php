@@ -6,7 +6,7 @@ use Attribute;
 use Spatie\LaravelData\Data;
 
 #[Attribute]
-final class DataTransformer
+final class DataTransformer implements TransformerContract
 {
     public function __construct(
         public string $class,

@@ -7,9 +7,11 @@ use IBroStudio\PipedTasks\Contracts\ProcessContract;
 use IBroStudio\PipedTasks\Contracts\ProcessModelContract;
 use IBroStudio\PipedTasks\Models\Process;
 use IBroStudio\PipedTasks\Transformers\DataTransformer;
+use IBroStudio\PipedTasks\Transformers\TransformerContract;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
+use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionProperty;
 
@@ -22,11 +24,14 @@ abstract class PayloadAbstract implements Arrayable, Payload
         collect(
             new \ReflectionClass($this)->getProperties()
         )->each(function (ReflectionProperty $property) {
-            if ($transformer = $property->getAttributes(DataTransformer::class)) {
-                $this->{$property->getName()} = new DataTransformer(
-                    class: $transformer[0]->getArguments()[0],
-                    value: $this->{$property->getName()})->transform();
-            }
+            collect($property->getAttributes())->each(function (ReflectionAttribute $attribute) use ($property) {
+               if (is_subclass_of($attribute->getName(), TransformerContract::class)) {
+                   $this->{$property->getName()} = new ($attribute->getName())(
+                       class: $attribute->getArguments()[0],
+                       value: $this->{$property->getName()}
+                   )->transform();
+               }
+            });
         });
     }
 
