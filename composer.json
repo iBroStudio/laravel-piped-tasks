@@ -16,7 +16,7 @@
             "role": "Developer"
         }
     ],
-    "version": "2.3.2",
+    "version": "2.4.0",
     "require": {
         "php": "^8.4",
         "filament/support": "^3.2",
