@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
  
+## [2.5.0](https://github.com/iBroStudio/laravel-piped-tasks/compare/v2.4.0...HEAD) (2024-12-03)
+### Features
+* extend payload property transformer with ValueObjectTransformer ([7a00f3](https://github.com/iBroStudio/laravel-piped-tasks/commit/7a00f3c90c683e1b5b72957e04bba9d104588235))
+
+---
+
 ## [2.4.0](https://github.com/iBroStudio/laravel-piped-tasks/compare/v2.3.2...HEAD) (2024-12-03)
 ### Features
 * php 8.4 update ([929c2a](https://github.com/iBroStudio/laravel-piped-tasks/commit/929c2ad99d94675a20f66af289308391d34d0527))
