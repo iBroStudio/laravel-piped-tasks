@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
  
+## [2.4.0](https://github.com/iBroStudio/laravel-piped-tasks/compare/v2.3.2...HEAD) (2024-12-03)
+### Features
+* php 8.4 update ([929c2a](https://github.com/iBroStudio/laravel-piped-tasks/commit/929c2ad99d94675a20f66af289308391d34d0527))
+
+---
+
 ## [2.3.2](https://github.com/iBroStudio/laravel-piped-tasks/compare/v2.3.1...HEAD) (2024-11-20)
 ### Bug Fixes
 * models properties clean up ([3dcc0b](https://github.com/iBroStudio/laravel-piped-tasks/commit/3dcc0beb3b7e01c704eed5085ad37506190e99f1))
