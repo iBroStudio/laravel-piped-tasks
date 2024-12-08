@@ -80,11 +80,9 @@ class ProcessPipeline extends Pipeline
 
             if ($e instanceof AbortProcessException) {
                 $this->updateProcessAction(ProcessStatesEnum::ABORTED);
-
-                return $this->passable;
+            } else {
+                $this->updateProcessAction(ProcessStatesEnum::FAILED);
             }
-
-            $this->updateProcessAction(ProcessStatesEnum::FAILED);
 
             if ($this->onFailure) {
                 return ($this->onFailure)($this->passable, $e);
