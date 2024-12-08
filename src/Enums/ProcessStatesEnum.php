@@ -15,6 +15,8 @@ enum ProcessStatesEnum: string implements HasColor, HasIcon, HasLabel
     case RESUME = 'resume';
     case COMPLETED = 'completed';
     case FAILED = 'failed';
+    case ABORTED = 'aborted';
+    case SKIPPED = 'skipped';
 
     public function getLabel(): ?string
     {
@@ -26,6 +28,8 @@ enum ProcessStatesEnum: string implements HasColor, HasIcon, HasLabel
             self::RESUME => 'resume',
             self::COMPLETED => 'completed',
             self::FAILED => 'failed',
+            self::ABORTED => 'aborted',
+            self::SKIPPED => 'skipped',
         };
     }
 
@@ -39,6 +43,8 @@ enum ProcessStatesEnum: string implements HasColor, HasIcon, HasLabel
             self::RESUME => 'info',
             self::COMPLETED => 'success',
             self::FAILED => 'danger',
+            self::ABORTED => 'danger',
+            self::SKIPPED => 'danger',
         };
     }
 
@@ -52,6 +58,8 @@ enum ProcessStatesEnum: string implements HasColor, HasIcon, HasLabel
             self::RESUME => 'heroicon-m-cog-6-tooth',
             self::COMPLETED => 'heroicon-m-check',
             self::FAILED => 'heroicon-m-x-mark',
+            self::ABORTED => 'heroicon-m-x-mark',
+            self::SKIPPED => 'heroicon-m-x-mark',
         };
     }
 }

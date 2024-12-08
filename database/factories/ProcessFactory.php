@@ -16,7 +16,6 @@ class ProcessFactory extends Factory
             'class' => ResumableFakeProcess::class,
             'state' => 'pending',
             'payload' => serialize(['test']),
-            'ended_at' => null,
         ];
     }
 }

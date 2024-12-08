@@ -482,6 +482,14 @@ return [
 ];
 ```
 
+## Skip task, abort process
+
+To skip a task and keep the process running, use `SkipTaskException`.
+
+To abort a process, use `AbortProcessException`.
+
+
+
 ## Testing
 
 ```bash

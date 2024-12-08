@@ -7,7 +7,9 @@ use IBroStudio\PipedTasks\Actions\RunProcess;
 use IBroStudio\PipedTasks\Concerns\HasActions;
 use IBroStudio\PipedTasks\Enums\ProcessStatesEnum;
 use IBroStudio\PipedTasks\Events\PipeExecutionPaused;
+use IBroStudio\PipedTasks\Exceptions\AbortProcessException;
 use IBroStudio\PipedTasks\Exceptions\PauseProcessException;
+use IBroStudio\PipedTasks\Exceptions\SkipTaskException;
 use IBroStudio\PipedTasks\Models\Process;
 use Illuminate\Contracts\Container\Container;
 use MichaelRubel\EnhancedPipeline\Events\PipeExecutionFinished;
@@ -67,12 +69,20 @@ class ProcessPipeline extends Pipeline
             }
 
             return $result;
+
         } catch (PauseProcessException $e) {
             $this->commitTransaction();
 
             return $this->passable;
+
         } catch (Throwable $e) {
             $this->rollbackTransaction();
+
+            if ($e instanceof AbortProcessException) {
+                $this->updateProcessAction(ProcessStatesEnum::ABORTED);
+
+                return $this->passable;
+            }
 
             $this->updateProcessAction(ProcessStatesEnum::FAILED);
 
@@ -136,7 +146,17 @@ class ProcessPipeline extends Pipeline
                     throw $carry;
                 }
 
-                $this->updateTaskAction(get_class($pipe), ProcessStatesEnum::COMPLETED);
+                if ($carry instanceof AbortProcessException) {
+                    $this->updateTaskAction(get_class($pipe), ProcessStatesEnum::ABORTED);
+                    throw $carry;
+                }
+
+                if ($carry instanceof SkipTaskException) {
+                    $this->updateTaskAction(get_class($pipe), ProcessStatesEnum::SKIPPED);
+                    $carry = $carry->next;
+                } else {
+                    $this->updateTaskAction(get_class($pipe), ProcessStatesEnum::COMPLETED);
+                }
 
                 $this->fireEvent(PipeExecutionFinished::class, $pipe, $passable);
 
