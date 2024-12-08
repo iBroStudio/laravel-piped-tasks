@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
  
+## [2.6.0](https://github.com/iBroStudio/laravel-piped-tasks/compare/v2.5.0...HEAD) (2024-12-08)
+### Features
+* add skip and abort methods ([7a8721](https://github.com/iBroStudio/laravel-piped-tasks/commit/7a8721fcf0b5a254bada8d0bfb47872bfe76a8a6))
+
+---
+
 ## [2.5.0](https://github.com/iBroStudio/laravel-piped-tasks/compare/v2.4.0...HEAD) (2024-12-03)
 ### Features
 * extend payload property transformer with ValueObjectTransformer ([7a00f3](https://github.com/iBroStudio/laravel-piped-tasks/commit/7a00f3c90c683e1b5b72957e04bba9d104588235))
