@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
  
+## [2.6.1](https://github.com/iBroStudio/laravel-piped-tasks/compare/v2.6.0...HEAD) (2024-12-09)
+### Bug Fixes
+* better to throw exception on abort ([15bbdf](https://github.com/iBroStudio/laravel-piped-tasks/commit/15bbdfc7f58d4e9e7dba3314061e30527c67f88e))
+
+---
+
 ## [2.6.0](https://github.com/iBroStudio/laravel-piped-tasks/compare/v2.5.0...HEAD) (2024-12-08)
 ### Features
 * add skip and abort methods ([7a8721](https://github.com/iBroStudio/laravel-piped-tasks/commit/7a8721fcf0b5a254bada8d0bfb47872bfe76a8a6))
