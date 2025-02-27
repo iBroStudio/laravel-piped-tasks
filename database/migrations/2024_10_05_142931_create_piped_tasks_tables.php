@@ -29,4 +29,10 @@ return new class extends Migration
             $table->string('state')->default(ProcessStatesEnum::PENDING);
         });
     }
+
+    public function down()
+    {
+        Schema::dropIfExists('processes_tasks');
+        Schema::dropIfExists('processes');
+    }
 };
