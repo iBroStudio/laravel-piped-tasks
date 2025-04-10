@@ -2,6 +2,7 @@
 
 use IBroStudio\PipedTasks\Contracts\Payload;
 use IBroStudio\PipedTasks\Enums\ProcessStatesEnum;
+use IBroStudio\PipedTasks\Events;
 use IBroStudio\PipedTasks\Models\Process;
 use IBroStudio\PipedTasks\Models\Task;
 use IBroStudio\TestSupport\Actions\AbortProcessTaskFakeAction;
@@ -11,10 +12,6 @@ use IBroStudio\TestSupport\Processes\LongFakeNameProcess;
 use IBroStudio\TestSupport\Processes\MultipleProcess;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Queue;
-use MichaelRubel\EnhancedPipeline\Events\PipeExecutionFinished;
-use MichaelRubel\EnhancedPipeline\Events\PipeExecutionStarted;
-use MichaelRubel\EnhancedPipeline\Events\PipelineFinished;
-use MichaelRubel\EnhancedPipeline\Events\PipelineStarted;
 
 it('can run an eloquent process', function () {
     $resultPayload = LongFakeNameProcess::process();
@@ -33,13 +30,13 @@ it('runs eloquent process with events', function () {
     Queue::fake();
     LongFakeNameProcess::process();
 
-    Event::assertDispatched(PipelineStarted::class);
-    Event::assertDispatched(PipelineFinished::class);
+    Event::assertDispatched(Events\PipelineStarted::class);
+    Event::assertDispatched(Events\PipelineFinished::class);
 
-    Event::assertDispatched(PipeExecutionStarted::class, function (PipeExecutionStarted $event) {
+    Event::assertDispatched(Events\PipeExecutionStarted::class, function (Events\PipeExecutionStarted $event) {
         return $event->pipe === RunFakeActionLongName::class;
     });
-    Event::assertDispatched(PipeExecutionFinished::class, function (PipeExecutionFinished $event) {
+    Event::assertDispatched(Events\PipeExecutionFinished::class, function (Events\PipeExecutionFinished $event) {
         return $event->pipe instanceof RunFakeActionLongName;
     });
 });

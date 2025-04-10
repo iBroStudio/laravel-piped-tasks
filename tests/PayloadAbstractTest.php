@@ -1,6 +1,5 @@
 <?php
 
-use IBroStudio\DataRepository\ValueObjects\Text;
 use IBroStudio\TestSupport\Data\FakeData;
 use IBroStudio\TestSupport\Processes\FakeProcess;
 use IBroStudio\TestSupport\Processes\Payloads\FakeDtoPayload;

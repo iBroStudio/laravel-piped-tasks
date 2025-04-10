@@ -2,11 +2,7 @@
 
 namespace IBroStudio\PipedTasks\Enums;
 
-use Filament\Support\Contracts\HasColor;
-use Filament\Support\Contracts\HasIcon;
-use Filament\Support\Contracts\HasLabel;
-
-enum ProcessStatesEnum: string implements HasColor, HasIcon, HasLabel
+enum ProcessStatesEnum: string
 {
     case PENDING = 'pending';
     case STARTED = 'started';
@@ -18,7 +14,7 @@ enum ProcessStatesEnum: string implements HasColor, HasIcon, HasLabel
     case ABORTED = 'aborted';
     case SKIPPED = 'skipped';
 
-    public function getLabel(): ?string
+    public function getLabel(): string
     {
         return match ($this) {
             self::PENDING => 'pending',
@@ -33,7 +29,7 @@ enum ProcessStatesEnum: string implements HasColor, HasIcon, HasLabel
         };
     }
 
-    public function getColor(): ?string
+    public function getColor(): string
     {
         return match ($this) {
             self::PENDING => 'gray',
@@ -48,7 +44,7 @@ enum ProcessStatesEnum: string implements HasColor, HasIcon, HasLabel
         };
     }
 
-    public function getIcon(): ?string
+    public function getIcon(): string
     {
         return match ($this) {
             self::PENDING => 'heroicon-m-clock',

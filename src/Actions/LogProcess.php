@@ -39,7 +39,7 @@ final class LogProcess
             }
 
             activity($processEventLogData->logName)
-                //->causedBy($userModel) // agent model or user model
+                // ->causedBy($userModel) // agent model or user model
                 ->performedOn($processEventLogData->performedOn)
                 ->event($processEventLogData->event->getLabel())
                 ->withProperties($processEventLogData->properties)

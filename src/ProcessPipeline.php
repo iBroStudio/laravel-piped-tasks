@@ -5,32 +5,75 @@ namespace IBroStudio\PipedTasks;
 use Closure;
 use IBroStudio\PipedTasks\Actions\RunProcess;
 use IBroStudio\PipedTasks\Concerns\HasActions;
+use IBroStudio\PipedTasks\Concerns\HasDatabaseTransactions;
+use IBroStudio\PipedTasks\Concerns\HasEvents;
 use IBroStudio\PipedTasks\Enums\ProcessStatesEnum;
-use IBroStudio\PipedTasks\Events\PipeExecutionPaused;
-use IBroStudio\PipedTasks\Exceptions\AbortProcessException;
-use IBroStudio\PipedTasks\Exceptions\PauseProcessException;
-use IBroStudio\PipedTasks\Exceptions\SkipTaskException;
 use IBroStudio\PipedTasks\Models\Process;
 use Illuminate\Contracts\Container\Container;
-use MichaelRubel\EnhancedPipeline\Events\PipeExecutionFinished;
-use MichaelRubel\EnhancedPipeline\Events\PipeExecutionStarted;
-use MichaelRubel\EnhancedPipeline\Events\PipelineFinished;
-use MichaelRubel\EnhancedPipeline\Events\PipelineStarted;
-use MichaelRubel\EnhancedPipeline\Pipeline;
+use Illuminate\Support\Traits\Conditionable;
+use RuntimeException;
 use Throwable;
 
-class ProcessPipeline extends Pipeline
+class ProcessPipeline
 {
+    use Conditionable;
     use HasActions;
+    use HasDatabaseTransactions;
+    use HasEvents;
 
-    protected $method = 'asTask';
+    protected mixed $passable;
 
-    public function then(Closure $destination)
+    protected string $method = 'asTask';
+
+    protected ?Closure $onFailure = null;
+
+    protected array $pipes = [];
+
+    public function __construct(protected ?Container $container = null) {}
+
+    public static function make(?Container $container = null): static
+    {
+        if (! $container) {
+            $container = \Illuminate\Container\Container::getInstance();
+        }
+
+        return $container->make(static::class);
+    }
+
+    public function send(mixed $passable): static
+    {
+        $this->passable = $passable;
+
+        return $this;
+    }
+
+    public function through(mixed $pipes): static
+    {
+        $this->pipes = is_array($pipes) ? $pipes : func_get_args();
+
+        return $this;
+    }
+
+    public function pipe(mixed $pipes): static
+    {
+        array_push($this->pipes, ...(is_array($pipes) ? $pipes : func_get_args()));
+
+        return $this;
+    }
+
+    public function via(string $method): static
+    {
+        $this->method = $method;
+
+        return $this;
+    }
+
+    public function then(Closure $destination): mixed
     {
         try {
             $this->updateProcessAction(ProcessStatesEnum::STARTED);
 
-            $this->fireEvent(PipelineStarted::class,
+            $this->fireEvent(Events\PipelineStarted::class,
                 $destination,
                 $this->passable,
                 $this->pipes(),
@@ -51,7 +94,7 @@ class ProcessPipeline extends Pipeline
 
             $this->updateProcessAction(ProcessStatesEnum::COMPLETED);
 
-            $this->fireEvent(PipelineFinished::class,
+            $this->fireEvent(Events\PipelineFinished::class,
                 $destination,
                 $this->passable,
                 $this->pipes(),
@@ -70,7 +113,7 @@ class ProcessPipeline extends Pipeline
 
             return $result;
 
-        } catch (PauseProcessException $e) {
+        } catch (Exceptions\PauseProcessException $e) {
             $this->commitTransaction();
 
             return $this->passable;
@@ -78,8 +121,10 @@ class ProcessPipeline extends Pipeline
         } catch (Throwable $e) {
             $this->rollbackTransaction();
 
-            if ($e instanceof AbortProcessException) {
+            if ($e instanceof Exceptions\AbortProcessException) {
                 $this->updateProcessAction(ProcessStatesEnum::ABORTED);
+
+                return $this->passable;
             } else {
                 $this->updateProcessAction(ProcessStatesEnum::FAILED);
             }
@@ -92,13 +137,27 @@ class ProcessPipeline extends Pipeline
         }
     }
 
-    protected function carry()
+    public function thenReturn(): mixed
+    {
+        return $this->then(function ($passable) {
+            return $passable;
+        });
+    }
+
+    protected function prepareDestination(Closure $destination): Closure
+    {
+        return function ($passable) use ($destination) {
+            return $destination($passable);
+        };
+    }
+
+    protected function carry(): Closure
     {
         return function ($stack, $pipe) {
             return function ($passable) use ($stack, $pipe) {
                 $this->updateTaskAction($pipe, ProcessStatesEnum::STARTED);
 
-                $this->fireEvent(PipeExecutionStarted::class, $pipe, $passable);
+                $this->fireEvent(Events\PipeExecutionStarted::class, $pipe, $passable);
 
                 if (is_callable($pipe)) {
                     // If the pipe is a callable, then we will call it directly, but otherwise we
@@ -108,7 +167,7 @@ class ProcessPipeline extends Pipeline
 
                     $this->updateTaskAction($pipe, ProcessStatesEnum::COMPLETED);
 
-                    $this->fireEvent(PipeExecutionFinished::class, $pipe, $passable);
+                    $this->fireEvent(Events\PipeExecutionFinished::class, $pipe, $passable);
 
                     return $result;
                 } elseif (! is_object($pipe)) {
@@ -133,33 +192,90 @@ class ProcessPipeline extends Pipeline
                     default => $pipe(...$parameters),
                 };
 
-                if ($carry instanceof PauseProcessException) {
+                if ($carry instanceof Exceptions\PauseProcessException) {
 
                     if (! in_array($passable->process->state, [ProcessStatesEnum::COMPLETED, ProcessStatesEnum::WAITING])) {
                         $this->updateTaskAction(get_class($pipe), ProcessStatesEnum::WAITING);
 
-                        $this->fireEvent(PipeExecutionPaused::class, $pipe, $passable);
+                        $this->fireEvent(Events\PipeExecutionPaused::class, $pipe, $passable);
                     }
 
                     throw $carry;
                 }
 
-                if ($carry instanceof AbortProcessException) {
+                if ($carry instanceof Exceptions\AbortProcessException) {
                     $this->updateTaskAction(get_class($pipe), ProcessStatesEnum::ABORTED);
                     throw $carry;
                 }
 
-                if ($carry instanceof SkipTaskException) {
+                if ($carry instanceof Exceptions\SkipTaskException) {
                     $this->updateTaskAction(get_class($pipe), ProcessStatesEnum::SKIPPED);
                     $carry = $carry->next;
                 } else {
                     $this->updateTaskAction(get_class($pipe), ProcessStatesEnum::COMPLETED);
                 }
 
-                $this->fireEvent(PipeExecutionFinished::class, $pipe, $passable);
+                $this->fireEvent(Events\PipeExecutionFinished::class, $pipe, $passable);
 
                 return $this->handleCarry($carry);
             };
         };
+    }
+
+    protected function parsePipeString(string $pipe): array
+    {
+        [$name, $parameters] = array_pad(explode(':', $pipe, 2), 2, []);
+
+        if (is_string($parameters)) {
+            $parameters = explode(',', $parameters);
+        }
+
+        return [$name, $parameters];
+    }
+
+    protected function pipes(): array
+    {
+        return $this->pipes;
+    }
+
+    protected function getContainer(): Container
+    {
+        if (! $this->container) {
+            throw new RuntimeException('A container instance has not been passed to the Pipeline.');
+        }
+
+        return $this->container;
+    }
+
+    public function setContainer(Container $container): static
+    {
+        $this->container = $container;
+
+        return $this;
+    }
+
+    public function onFailure(Closure $callback): static
+    {
+        $this->onFailure = $callback;
+
+        return $this;
+    }
+
+    public function run(string $pipe, mixed $data = true): mixed
+    {
+        return $this
+            ->send($data)
+            ->through([$pipe])
+            ->thenReturn();
+    }
+
+    protected function handleCarry(mixed $carry): mixed
+    {
+        return $carry;
+    }
+
+    protected function handleException(mixed $passable, Throwable $e): mixed
+    {
+        throw $e;
     }
 }

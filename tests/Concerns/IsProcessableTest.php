@@ -2,13 +2,13 @@
 
 use IBroStudio\PipedTasks\Contracts\Payload;
 use IBroStudio\PipedTasks\Enums\ProcessStatesEnum;
+use IBroStudio\PipedTasks\Events\PipelineFinished;
+use IBroStudio\PipedTasks\Events\PipelineStarted;
 use IBroStudio\PipedTasks\Models\Process;
 use IBroStudio\TestSupport\Models\ProcessableFakeModel;
 use IBroStudio\TestSupport\Processes\FakeProcess;
 use IBroStudio\TestSupport\Processes\LongFakeNameProcess;
 use IBroStudio\TestSupport\Processes\ResumableFakeProcess;
-use MichaelRubel\EnhancedPipeline\Events\PipelineFinished;
-use MichaelRubel\EnhancedPipeline\Events\PipelineStarted;
 
 use function Pest\Laravel\assertModelExists;
 

@@ -3,7 +3,7 @@
 namespace IBroStudio\PipedTasks\Transformers;
 
 use Attribute;
-use MichaelRubel\ValueObjects\ValueObject;
+use IBroStudio\DataRepository\ValueObjects\ValueObject;
 
 #[Attribute]
 final class ValueObjectTransformer implements TransformerContract
@@ -23,6 +23,6 @@ final class ValueObjectTransformer implements TransformerContract
             return $this->value;
         }
 
-        return $this->class::make($this->value);
+        return $this->class::from($this->value);
     }
 }

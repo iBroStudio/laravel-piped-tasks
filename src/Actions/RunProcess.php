@@ -44,7 +44,7 @@ final class RunProcess
             parent_process: $parentProcess
         );
 
-        //static::dispatch($process, $payload);
+        // static::dispatch($process, $payload);
 
         return new PauseProcessException($process, $payload);
     }

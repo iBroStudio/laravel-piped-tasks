@@ -10,6 +10,9 @@ return new class extends Migration
 {
     public function up()
     {
+        Schema::dropIfExists('processes_tasks');
+        Schema::dropIfExists('processes');
+
         Schema::create('processes', function (Blueprint $table) {
             $table->id();
             $table->string('class');

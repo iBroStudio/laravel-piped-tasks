@@ -10,7 +10,7 @@ class ProcessLogData extends Data
 {
     public function __construct(
         public string $logName,
-        //public Model $causedBy,
+        // public Model $causedBy,
         public Model $performedOn,
         public ProcessStatesEnum $event,
         public string $description,

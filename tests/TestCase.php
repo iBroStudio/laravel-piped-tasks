@@ -2,6 +2,7 @@
 
 namespace IBroStudio\PipedTasks\Tests;
 
+use IBroStudio\PipedTasks\Commands\PipedTasksInstallCommand;
 use IBroStudio\PipedTasks\PipedTasksServiceProvider;
 use IBroStudio\TestSupport\TestSupportServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -27,6 +28,8 @@ class TestCase extends Orchestra
         ])->run();
 
         $this->artisan('migrate')->run();
+
+        $this->artisan(PipedTasksInstallCommand::class)->run();
     }
 
     protected function getPackageProviders($app)
